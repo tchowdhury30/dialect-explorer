@@ -3,6 +3,14 @@ export interface Dialect {
   arabicScript: string;
   transliteration: string;
   audioUrl?: string;
+  samples?: VoiceSample[];
+}
+
+export interface VoiceSample {
+  id: string;
+  speaker?: string;
+  note?: string;
+  audioUrl?: string;
 }
 
 export interface Phrase {
@@ -15,6 +23,7 @@ export interface Phrase {
   timesQueried: number;
   isBookmarked: boolean;
   folderId?: string;
+  context?: string;
 }
 
 export interface Category {
