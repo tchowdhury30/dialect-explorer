@@ -50,10 +50,13 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false);
   
   const [phrases, setPhrases] = useState<Phrase[]>(() => {
-    // Load from localStorage if available
+    const DATA_VERSION = 'v11';
+    if (localStorage.getItem('dataVersion') !== DATA_VERSION) {
+      localStorage.removeItem('phrases');
+      localStorage.setItem('dataVersion', DATA_VERSION);
+    }
     const saved = localStorage.getItem('phrases');
     const parsed = saved ? JSON.parse(saved) : null;
-    // If storage is empty, corrupted, or outdated, fall back to bundled data
     if (Array.isArray(parsed) && parsed.length >= initialPhrases.length) {
       return parsed;
     }

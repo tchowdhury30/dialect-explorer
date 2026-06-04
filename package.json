@@ -1,0 +1,23 @@
+{
+  "name": "dialect-explorer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tchowdhury30/dialect-explorer.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tchowdhury30/dialect-explorer/issues"
+  },
+  "homepage": "https://github.com/tchowdhury30/dialect-explorer#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.107.0"
+  }
+}
