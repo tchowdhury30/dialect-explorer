@@ -6,13 +6,9 @@ import { XIcon } from "lucide-react@0.487.0";
 
 import { cn } from "./utils";
 
-const Sheet = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Root>
->(({ ...props }, ref) => {
-  return <SheetPrimitive.Root ref={ref} data-slot="sheet" {...props} />;
-});
-Sheet.displayName = "Sheet";
+function Sheet({ ...props }: React.ComponentPropsWithoutRef<typeof SheetPrimitive.Root>) {
+  return <SheetPrimitive.Root data-slot="sheet" {...props} />;
+}
 
 const SheetTrigger = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Trigger>,
@@ -30,13 +26,9 @@ const SheetClose = React.forwardRef<
 });
 SheetClose.displayName = "SheetClose";
 
-const SheetPortal = React.forwardRef<
-  React.ElementRef<typeof SheetPrimitive.Portal>,
-  React.ComponentPropsWithoutRef<typeof SheetPrimitive.Portal>
->(({ ...props }, ref) => {
-  return <SheetPrimitive.Portal ref={ref} data-slot="sheet-portal" {...props} />;
-});
-SheetPortal.displayName = "SheetPortal";
+function SheetPortal({ ...props }: React.ComponentPropsWithoutRef<typeof SheetPrimitive.Portal>) {
+  return <SheetPrimitive.Portal data-slot="sheet-portal" {...props} />;
+}
 
 const SheetOverlay = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Overlay>,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Explore } from './components/Explore';
 import { Search } from './components/Search';
@@ -151,6 +151,16 @@ export default function App() {
 
   const theme = dialectThemes[settings.currentDialect];
 
+  const bgParticles = useMemo(() =>
+    Array.from({ length: 8 }, () => ({
+      initX: Math.random() * 400,
+      initY: Math.random() * 200,
+      initRotate: Math.random() * 360,
+      animY: Math.random() * 200,
+      animRotate: Math.random() * 360 + 360,
+      duration: 20 + Math.random() * 10,
+    })), []);
+
   // Show onboarding if first time
   if (!settings.hasCompletedOnboarding) {
     return <OnboardingDialog onSelectDialect={handleOnboardingComplete} />;
@@ -175,29 +185,29 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen bg-gray-50 max-w-md mx-auto">
       {/* Header with gradient and animations */}
-      <motion.header 
+      <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         className={`${theme.bg} text-white p-6 shadow-lg flex-shrink-0 relative overflow-hidden`}
       >
         {/* Animated background pattern */}
         <div className="absolute inset-0 opacity-10">
-          {[...Array(8)].map((_, i) => (
+          {bgParticles.map((p, i) => (
             <motion.div
               key={i}
               className="absolute text-6xl"
-              initial={{ 
-                x: Math.random() * 400, 
-                y: Math.random() * 200,
-                rotate: Math.random() * 360,
+              initial={{
+                x: p.initX,
+                y: p.initY,
+                rotate: p.initRotate,
                 opacity: 0.3
               }}
-              animate={{ 
-                y: [null, Math.random() * 200],
-                rotate: [null, Math.random() * 360 + 360],
+              animate={{
+                y: [null, p.animY],
+                rotate: [null, p.animRotate],
               }}
-              transition={{ 
-                duration: 20 + Math.random() * 10,
+              transition={{
+                duration: p.duration,
                 repeat: Infinity,
                 ease: "linear"
               }}

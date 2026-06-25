@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, Download, Trash2, Globe, Heart, DollarSign, Mic, User, ChevronLeft, Sparkles } from 'lucide-react';
+import { ChevronRight, Download, Trash2, Globe, Heart, Mic, User, ChevronLeft, Sparkles } from 'lucide-react';
 
 type DialectType = 'Egyptian' | 'Levantine';
 

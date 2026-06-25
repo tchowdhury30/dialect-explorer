@@ -65,7 +65,7 @@ export function Search({ phrases, onPhraseUpdate, downloadedDialects, currentDia
     }
 
     return results;
-  }, [searchQuery, isOnline, downloadedDialects]);
+  }, [searchQuery, isOnline, downloadedDialects, phrases]);
 
   const handlePhraseClick = (phrase: Phrase) => {
     const updatedPhrase = { ...phrase, timesQueried: phrase.timesQueried + 1 };

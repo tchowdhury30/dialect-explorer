@@ -14,22 +14,6 @@ interface ExploreProps {
 }
 
 export function Explore({ phrases, onPhraseUpdate, currentDialect }: ExploreProps) {
-  const dialectColors = {
-    Egyptian: {
-      bg: 'bg-gradient-to-br from-amber-500 to-orange-600',
-      light: 'bg-amber-50',
-      text: 'text-amber-600',
-      border: 'border-amber-200',
-    },
-    Levantine: {
-      bg: 'bg-gradient-to-br from-indigo-500 to-purple-600',
-      light: 'bg-indigo-50',
-      text: 'text-indigo-600',
-      border: 'border-indigo-200',
-    },
-  };
-  
-  const colors = dialectColors[currentDialect];
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedPhrase, setSelectedPhrase] = useState<Phrase | null>(null);
 
