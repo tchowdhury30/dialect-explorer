@@ -1,117 +1,109 @@
-import { useState, useRef } from 'react';
-import { motion } from 'motion/react';
-import { Phrase, VoiceSample } from '../types';
-import { Bookmark, Sparkles, Play, Loader2 } from 'lucide-react';
+import { ReactNode } from 'react';
+import { Bookmark } from 'lucide-react';
+import { DialectId, Phrase, PhraseState } from '../types';
+import { viewFor } from '../lib/phrase';
+import { VoiceButton } from './VoiceButton';
+import { Pill } from './Pill';
 
 interface PhraseCardProps {
   phrase: Phrase;
-  onClick: () => void;
-  onBookmarkToggle: (e: React.MouseEvent) => void;
-  currentDialect: 'Egyptian' | 'Levantine';
+  dialect: DialectId;
+  state: PhraseState;
+  /** Position in the current list, printed as the entry number. */
+  index: number;
+  onOpen: () => void;
+  onToggleBookmark: () => void;
+  footer?: ReactNode;
 }
 
-function SpeakerButton({ sample, colors }: { sample: VoiceSample; colors: { bookmarkBg: string; text: string } }) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const play = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-      setIsPlaying(false);
-      return;
-    }
-    const audio = new Audio(sample.audioUrl);
-    audioRef.current = audio;
-    audio.onended = () => { setIsPlaying(false); audioRef.current = null; };
-    audio.onerror = () => { setIsPlaying(false); audioRef.current = null; };
-    setIsPlaying(true);
-    try { await audio.play(); } catch { setIsPlaying(false); }
-  };
-
-  return (
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      onClick={play}
-      className={`flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg ${colors.bookmarkBg} ${colors.text} transition-colors`}
-      aria-label={`Play ${sample.speaker}`}
-    >
-      {isPlaying
-        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-        : <Play className="w-3.5 h-3.5" />}
-      <span className="text-[9px] leading-none font-medium">{sample.speaker}</span>
-    </motion.button>
-  );
-}
-
-export function PhraseCard({ phrase, onClick, onBookmarkToggle, currentDialect }: PhraseCardProps) {
-  const dialectColors = {
-    Egyptian: {
-      border: 'hover:border-amber-400',
-      bg: 'hover:bg-gradient-to-br hover:from-amber-50 hover:to-orange-50',
-      text: 'text-amber-600',
-      bookmark: 'fill-amber-600 text-amber-600',
-      bookmarkBg: 'bg-amber-100',
-    },
-    Levantine: {
-      border: 'hover:border-indigo-400',
-      bg: 'hover:bg-gradient-to-br hover:from-indigo-50 hover:to-purple-50',
-      text: 'text-indigo-600',
-      bookmark: 'fill-indigo-600 text-indigo-600',
-      bookmarkBg: 'bg-indigo-100',
-    },
-  };
-
-  const colors = dialectColors[currentDialect];
-  const dialectEntry = phrase.dialects[0];
-  const samples = dialectEntry?.samples ?? [];
-  const displayLine = dialectEntry?.transliteration || phrase.fushaTransliteration;
+/**
+ * An entry in the phrasebook.
+ *
+ * Typographic hierarchy carries this, not boxes: a numbered kicker line with
+ * the English set small and muted, the Arabic given the largest size and the
+ * most leading, and the transliteration as an italic caption beneath it. The
+ * voices sit below a hairline, like a credit line.
+ */
+export function PhraseCard({
+  phrase,
+  dialect,
+  state,
+  index,
+  onOpen,
+  onToggleBookmark,
+  footer,
+}: PhraseCardProps) {
+  const view = viewFor(phrase, dialect);
 
   return (
-    <motion.button
-      whileHover={{ scale: 1.02, y: -2 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className={`w-full bg-white rounded-xl p-4 shadow-sm border-2 border-gray-200 ${colors.border} ${colors.bg} transition-all text-left relative overflow-hidden group`}
-    >
-      <div className={`absolute top-0 right-0 w-20 h-20 ${currentDialect === 'Egyptian' ? 'bg-amber-100' : 'bg-indigo-100'} rounded-full blur-2xl opacity-0 group-hover:opacity-50 transition-opacity -mr-10 -mt-10`} />
+    /* Not a <button>: it contains buttons. The English line is the control and
+       stretches across the entry via a pseudo-element. */
+    <article className="relative border-b border-line bg-card px-[22px] pb-[21px] pt-5">
+      <div className="flex items-baseline gap-3">
+        <span className="pt-0.5 text-[0.59375rem] tabular-nums tracking-[0.14em] text-ink-soft">
+          {String(index + 1).padStart(2, '0')}
+        </span>
 
-      <div className="relative">
-        {/* Top row: English + bookmark */}
-        <div className="flex items-start justify-between gap-2 mb-1">
-          <div className="flex-1">
-            <div className="flex items-start gap-2">
-              <p className="text-gray-900 flex-1 text-sm font-medium">{phrase.english}</p>
-              {phrase.timesQueried > 0 && (
-                <span className={`text-xs px-1.5 py-0.5 ${colors.bookmarkBg} ${colors.text} rounded-full flex items-center gap-1 shrink-0`}>
-                  <Sparkles className="w-3 h-3" />
-                  {phrase.timesQueried}
-                </span>
-              )}
-            </div>
-            <p className={`${colors.text} text-xs mt-0.5`}>{displayLine}</p>
-          </div>
-          <motion.button
-            whileHover={{ scale: 1.2, rotate: 10 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={onBookmarkToggle}
-            className={`p-1.5 rounded-xl transition-colors shrink-0 ${phrase.isBookmarked ? colors.bookmarkBg : 'hover:bg-gray-100'}`}
-          >
-            <Bookmark className={`w-4 h-4 ${phrase.isBookmarked ? colors.bookmark : 'text-gray-400'}`} />
-          </motion.button>
-        </div>
+        <button
+          type="button"
+          onClick={onOpen}
+          className="flex-1 text-left after:absolute after:inset-0 after:content-['']"
+        >
+          <span className="block text-[0.9375rem] leading-snug tracking-[-0.008em] text-ink-muted">
+            {phrase.english}
+          </span>
+        </button>
 
-        {/* Speaker buttons row */}
-        {samples.length > 0 && (
-          <div className="flex gap-1 mt-2 flex-wrap">
-            {samples.map((sample) => (
-              <SpeakerButton key={sample.speaker} sample={sample} colors={colors} />
-            ))}
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={onToggleBookmark}
+          aria-pressed={state.isBookmarked}
+          aria-label={state.isBookmarked ? 'Remove bookmark' : 'Bookmark this phrase'}
+          className={`relative z-10 -mr-1 shrink-0 p-1 transition-colors ${
+            state.isBookmarked ? 'text-brand' : 'text-ink-soft hover:text-brand'
+          }`}
+        >
+          <Bookmark className="h-[0.9375rem] w-[0.9375rem]" fill={state.isBookmarked ? 'currentColor' : 'none'} />
+        </button>
       </div>
-    </motion.button>
+
+      <p
+        dir="rtl"
+        lang="ar"
+        className={`mt-3.5 text-[1.9375rem] leading-[1.95] ${
+          view.isFallback ? 'text-ink-muted' : 'text-ink'
+        }`}
+      >
+        {view.arabic}
+      </p>
+
+      <p className="mt-1.5 text-[0.78125rem] italic tracking-[0.015em] text-ink-soft">
+        {view.transliteration}
+      </p>
+
+      {view.isFallback ? (
+        <div className="mt-[17px] border-l border-brand py-0.5 pl-[11px]">
+          <Pill tone="accent" className="mb-1">
+            MSA
+          </Pill>
+          <p className="text-[0.71875rem] italic leading-relaxed text-ink-soft">
+            Modern Standard Arabic — dialect recording coming
+          </p>
+        </div>
+      ) : view.samples.length > 0 ? (
+        <div className="mt-[17px] flex flex-wrap items-center border-t border-line pt-[13px]">
+          {view.samples.map((sample) => (
+            <VoiceButton key={sample.speaker} sample={sample} phraseId={phrase.id} />
+          ))}
+        </div>
+      ) : null}
+
+      {footer && <div className="relative z-10 mt-3">{footer}</div>}
+    </article>
   );
+}
+
+/** The run of entries. Ruled, not stacked — no gaps between entries. */
+export function PhraseList({ children }: { children: ReactNode }) {
+  return <div className="border-t border-line">{children}</div>;
 }

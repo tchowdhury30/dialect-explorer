@@ -39,28 +39,34 @@ function j(phraseNum: number, english: string, fusha: string, fushaLatin: string
     english,
     fushaArabic: fusha,
     fushaTransliteration: fushaLatin,
-    dialects: [{ name: 'Jordanian', arabicScript: arabic, transliteration: latin, samples: samples(fileNum ?? phraseNum) }],
+    dialects: [
+      {
+        dialectId: 'levantine',
+        name: 'Jordanian',
+        arabicScript: arabic,
+        transliteration: latin,
+        samples: samples(fileNum ?? phraseNum),
+      },
+    ],
     category,
-    timesQueried: 0,
-    isBookmarked: false,
   };
 }
 
 export const categories: Category[] = [
-  { id: 'conversation', name: 'Conversation', icon: '💬', description: 'Greetings and introductions', phraseCount: 38 },
-  { id: 'restaurants',  name: 'Restaurants',  icon: '🍽️', description: 'Ordering food and dining',    phraseCount: 24 },
-  { id: 'tourism',      name: 'Tourism',      icon: '🗺️', description: 'Sightseeing and shopping',    phraseCount: 21 },
-  { id: 'taxis',        name: 'Taxis',        icon: '🚕', description: 'Getting around by taxi',      phraseCount: 33 },
-  { id: 'travel',       name: 'Travel',       icon: '🚌', description: 'Buses, trains, and transport', phraseCount: 15 },
-  { id: 'numbers',      name: 'Numbers',      icon: '🔢', description: 'Counting and days',            phraseCount: 4  },
-  { id: 'emergencies',  name: 'Emergencies',  icon: '🚨', description: 'Emergency situations',        phraseCount: 15 },
+  { id: 'conversation', name: 'Conversation', description: 'Greetings and introductions', phraseCount: 38 },
+  { id: 'restaurants',  name: 'Restaurants', description: 'Ordering food and dining',    phraseCount: 24 },
+  { id: 'tourism',      name: 'Tourism', description: 'Sightseeing and shopping',    phraseCount: 21 },
+  { id: 'taxis',        name: 'Taxis', description: 'Getting around by taxi',      phraseCount: 33 },
+  { id: 'travel',       name: 'Travel', description: 'Buses, trains, and transport', phraseCount: 15 },
+  { id: 'numbers',      name: 'Numbers', description: 'Counting and days',            phraseCount: 4  },
+  { id: 'emergencies',  name: 'Emergencies', description: 'Emergency situations',        phraseCount: 15 },
 ];
 
 export const phrases: Phrase[] = [
   // CONVERSATION 1-38
   j(1,  'Hello!',                      'مرحبا',              'marhaba',                  'مرحبا',               'marhaba',               'conversation'),
-  { id: 'p2', phraseNum: 2, english: 'How are you?', fushaArabic: 'كيف حالك؟', fushaTransliteration: 'kayfa halak?', category: 'conversation', timesQueried: 0, isBookmarked: false, dialects: [{ name: 'Jordanian', arabicScript: 'كيفك؟', transliteration: 'keefak?', samples: [{ speaker: 'Ghaina', folder: 'habib-ghaina', prefix: 'HGC', phraseNum: 2, trackNum: 3, audioUrl: `${BASE}/habib-ghaina/02/HGC_02_Track%203.mp3` }] }] },
-  { id: 'p4', phraseNum: 4, english: 'My name is ___', fushaArabic: 'اسمي ___', fushaTransliteration: 'ismi ___', category: 'conversation', timesQueried: 0, isBookmarked: false, dialects: [{ name: 'Jordanian', arabicScript: 'اسمي ___', transliteration: 'ismi ___', samples: [{ speaker: 'Ghaina', folder: 'habib-ghaina', prefix: 'HGC', phraseNum: 4, trackNum: 3, audioUrl: `${BASE}/habib-ghaina/04/HGC_04_Track%203.mp3` }] }] },
+  { id: 'p2', phraseNum: 2, english: 'How are you?', fushaArabic: 'كيف حالك؟', fushaTransliteration: 'kayfa halak?', category: 'conversation', dialects: [{ dialectId: 'levantine', name: 'Jordanian', arabicScript: 'كيفك؟', transliteration: 'keefak?', samples: [{ speaker: 'Ghaina', folder: 'habib-ghaina', prefix: 'HGC', phraseNum: 2, trackNum: 3, audioUrl: `${BASE}/habib-ghaina/02/HGC_02_Track%203.mp3` }] }] },
+  { id: 'p4', phraseNum: 4, english: 'My name is ___', fushaArabic: 'اسمي ___', fushaTransliteration: 'ismi ___', category: 'conversation', dialects: [{ dialectId: 'levantine', name: 'Jordanian', arabicScript: 'اسمي ___', transliteration: 'ismi ___', samples: [{ speaker: 'Ghaina', folder: 'habib-ghaina', prefix: 'HGC', phraseNum: 4, trackNum: 3, audioUrl: `${BASE}/habib-ghaina/04/HGC_04_Track%203.mp3` }] }] },
   j(6,  'I am from ___',              'أنا من ___',          'ana min ___',              'أنا من ___',          'ana min ___',           'conversation'),
   j(7,  'I speak a little Arabic',     'أتكلم عربي قليلاً', 'atakallam arabi qalilan',  'بحكي عربي شوي',      'bahki arabi shway',     'conversation'),
   j(8,  'I speak Fusha',              'أتكلم الفصحى',       'atakallam al-fusha',       'بحكي فصحى',           'bahki fusha',           'conversation'),
@@ -86,7 +92,7 @@ export const phrases: Phrase[] = [
   j(28, 'Please',                      'من فضلك',            'min fadlak',               'لو سمحت',             'law samaht',            'conversation'),
   j(29, "I'm sorry",                   'آسف',                'aasif',                    'آسف',                 'aasif',                 'conversation'),
   j(30, 'How do you say ___?',        'كيف تقول ___؟',       'kayfa taqul ___?',         'كيف بتقول ___؟',      'keef btqul ___?',       'conversation'),
-  { id: 'p31', phraseNum: 31, english: 'Can you speak slowly?', fushaArabic: 'هل يمكنك التحدث ببطء؟', fushaTransliteration: 'hal yumkinuka al-tahadduth bibut?', category: 'conversation', timesQueried: 0, isBookmarked: false, dialects: [{ name: 'Jordanian', arabicScript: 'فيك تحكي شوي أبطأ؟', transliteration: 'feek thki shway abta?', samples: [
+  { id: 'p31', phraseNum: 31, english: 'Can you speak slowly?', fushaArabic: 'هل يمكنك التحدث ببطء؟', fushaTransliteration: 'hal yumkinuka al-tahadduth bibut?', category: 'conversation', dialects: [{ dialectId: 'levantine', name: 'Jordanian', arabicScript: 'فيك تحكي شوي أبطأ؟', transliteration: 'feek thki shway abta?', samples: [
     { speaker: 'Habib', folder: 'habib-ghaina', prefix: 'HGC', phraseNum: 31, trackNum: 4, audioUrl: `${BASE}/habib-ghaina/31/HGC_31_Track%204.mp3` },
   ] }] },
   j(32, 'What does this mean?',        'ماذا يعني هذا؟',     'madha yaani hadha?',       'شو يعني هاد؟',        'shu yaani haad?',       'conversation'),
@@ -198,24 +204,24 @@ export const phrases: Phrase[] = [
   j(132, 'Does this have alcohol?',          'في كحول بهاد؟',      'fi kuhul b-haad?',              'في كحول بهاد؟',       'fi kuhul b-haad?',          'travel', 133),
   j(133, 'How much alcohol is in this?',     'قديش في كحول بهاد؟', 'addeish fi kuhul b-haad?',      'قديش في كحول بهاد؟', 'addeish fi kuhul b-haad?',  'travel', 134),
   // Counting/days use special file prefixes with # — hardcoded URLs
-  { id: 'p134', phraseNum: 134, english: 'Count numbers 1–10', fushaArabic: 'واحد، اثنين، ثلاثة...', fushaTransliteration: 'wahid, ithnayn, thalatha...', category: 'numbers', timesQueried: 0, isBookmarked: false, dialects: [{ name: 'Jordanian', arabicScript: 'واحد، اثنين، ثلاثة، أربعة، خمسة، ستة، سبعة، ثمانية، تسعة، عشرة', transliteration: "wahad, ithnayn, thalate, arba'a, khamse, sitte, sab'a, thamanya, tis'a, 'ashara", samples: [
+  { id: 'p134', phraseNum: 134, english: 'Count numbers 1–10', fushaArabic: 'واحد، اثنين، ثلاثة...', fushaTransliteration: 'wahid, ithnayn, thalatha...', category: 'numbers', dialects: [{ dialectId: 'levantine', name: 'Jordanian', arabicScript: 'واحد، اثنين، ثلاثة، أربعة، خمسة، ستة، سبعة، ثمانية، تسعة، عشرة', transliteration: "wahad, ithnayn, thalate, arba'a, khamse, sitte, sab'a, thamanya, tis'a, 'ashara", samples: [
     { speaker: 'Habib',  folder: 'habib-ghaina', prefix: 'HonlyC', phraseNum: 135, trackNum: 0, audioUrl: `${BASE}/merged/HonlyC_135_merged.mp3` },
     { speaker: 'Ghaina', folder: 'habib-ghaina', prefix: 'GonlyC', phraseNum: 135, trackNum: 0, audioUrl: `${BASE}/merged/GonlyC_135_merged.mp3` },
     { speaker: 'Halad',  folder: 'halad-salim',  prefix: 'HonlyC', phraseNum: 135, trackNum: 0, audioUrl: `${BASE}/merged/HalonlyC_135_merged.mp3` },
   ] }] },
-  { id: 'p135', phraseNum: 135, english: 'Count by 10s', fushaArabic: 'عشرة، عشرين...', fushaTransliteration: "'ashara, 'ishreen...", category: 'numbers', timesQueried: 0, isBookmarked: false, dialects: [{ name: 'Jordanian', arabicScript: 'عشرة، عشرين، ثلاثين، أربعين، خمسين، ستين، سبعين، ثمانين، تسعين، مية', transliteration: "'ashara, 'ishreen, thalatheen, arba'een, khamseen, sitteen, sab'een, thamaneen, tis'een, miyye", samples: [
+  { id: 'p135', phraseNum: 135, english: 'Count by 10s', fushaArabic: 'عشرة، عشرين...', fushaTransliteration: "'ashara, 'ishreen...", category: 'numbers', dialects: [{ dialectId: 'levantine', name: 'Jordanian', arabicScript: 'عشرة، عشرين، ثلاثين، أربعين، خمسين، ستين، سبعين، ثمانين، تسعين، مية', transliteration: "'ashara, 'ishreen, thalatheen, arba'een, khamseen, sitteen, sab'een, thamaneen, tis'een, miyye", samples: [
     { speaker: 'Habib',  folder: 'habib-ghaina', prefix: 'HonlyC', phraseNum: 136, trackNum: 0, audioUrl: `${BASE}/merged/HonlyC_136_merged.mp3` },
     { speaker: 'Ghaina', folder: 'habib-ghaina', prefix: 'GonlyC', phraseNum: 136, trackNum: 0, audioUrl: `${BASE}/merged/GonlyC_136_merged.mp3` },
     { speaker: 'Halad',  folder: 'halad-salim',  prefix: 'HonlyC', phraseNum: 136, trackNum: 0, audioUrl: `${BASE}/merged/HalonlyC_136_merged.mp3` },
     { speaker: 'Salim',  folder: 'halad-salim',  prefix: 'SonlyC', phraseNum: 136, trackNum: 0, audioUrl: `${BASE}/merged/SalonlyC_136_merged.mp3` },
   ] }] },
-  { id: 'p136', phraseNum: 136, english: 'Count by 100s', fushaArabic: 'مية، مئتين...', fushaTransliteration: "miyya, mi'tayn...", category: 'numbers', timesQueried: 0, isBookmarked: false, dialects: [{ name: 'Jordanian', arabicScript: 'مية، مئتين، ثلاثمية، أربعمية، خمسمية، ستمية، سبعمية، ثمانمية، تسعمية، ألف', transliteration: "miyye, mi'tayn, taltmiyye, arba'miyye, khams miyye, sett miyye, sab'miyye, thamn miyye, tis'miyye, alf", samples: [
+  { id: 'p136', phraseNum: 136, english: 'Count by 100s', fushaArabic: 'مية، مئتين...', fushaTransliteration: "miyya, mi'tayn...", category: 'numbers', dialects: [{ dialectId: 'levantine', name: 'Jordanian', arabicScript: 'مية، مئتين، ثلاثمية، أربعمية، خمسمية، ستمية، سبعمية، ثمانمية، تسعمية، ألف', transliteration: "miyye, mi'tayn, taltmiyye, arba'miyye, khams miyye, sett miyye, sab'miyye, thamn miyye, tis'miyye, alf", samples: [
     { speaker: 'Habib',  folder: 'habib-ghaina', prefix: 'HonlyC', phraseNum: 137, trackNum: 0, audioUrl: `${BASE}/merged/HonlyC_137_merged.mp3` },
     { speaker: 'Ghaina', folder: 'habib-ghaina', prefix: 'GonlyC', phraseNum: 137, trackNum: 0, audioUrl: `${BASE}/merged/GonlyC_137_merged.mp3` },
     { speaker: 'Halad',  folder: 'halad-salim',  prefix: 'HonlyC', phraseNum: 137, trackNum: 0, audioUrl: `${BASE}/merged/HalonlyC_137_merged.mp3` },
     { speaker: 'Salim',  folder: 'halad-salim',  prefix: 'SonlyC', phraseNum: 137, trackNum: 0, audioUrl: `${BASE}/merged/SalonlyC_137_merged.mp3` },
   ] }] },
-  { id: 'p137', phraseNum: 137, english: 'Days of the week', fushaArabic: 'أيام الأسبوع', fushaTransliteration: "ayyam al-usbuu'", category: 'numbers', timesQueried: 0, isBookmarked: false, dialects: [{ name: 'Jordanian', arabicScript: 'الأحد، الاثنين، الثلاثاء، الأربعاء، الخميس، الجمعة، السبت', transliteration: "el-ahad, el-ithnayn, el-thalata, el-arba'a, el-khamees, el-jum'a, el-sabt", samples: [
+  { id: 'p137', phraseNum: 137, english: 'Days of the week', fushaArabic: 'أيام الأسبوع', fushaTransliteration: "ayyam al-usbuu'", category: 'numbers', dialects: [{ dialectId: 'levantine', name: 'Jordanian', arabicScript: 'الأحد، الاثنين، الثلاثاء، الأربعاء، الخميس، الجمعة، السبت', transliteration: "el-ahad, el-ithnayn, el-thalata, el-arba'a, el-khamees, el-jum'a, el-sabt", samples: [
     { speaker: 'Habib',  folder: 'habib-ghaina', prefix: 'HDaysC',     phraseNum: 138, trackNum: 0, audioUrl: `${BASE}/merged/HDaysC_138_merged.mp3` },
     { speaker: 'Ghaina', folder: 'habib-ghaina', prefix: 'GDaysC',     phraseNum: 138, trackNum: 0, audioUrl: `${BASE}/merged/GDaysC_138_merged.mp3` },
     { speaker: 'Halad',  folder: 'halad-salim',  prefix: 'HonlydaysC', phraseNum: 138, trackNum: 0, audioUrl: `${BASE}/merged/HalonlydaysC_138_merged.mp3` },

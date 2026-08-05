@@ -1,311 +1,253 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { ChevronRight, Download, Trash2, Globe, Heart, Mic, User, ChevronLeft, Sparkles } from 'lucide-react';
-
-type DialectType = 'Egyptian' | 'Levantine';
+import { ReactNode } from 'react';
+import {
+  Check,
+  ChevronLeft,
+  Clock,
+  Download,
+  Globe,
+  Heart,
+  Monitor,
+  Moon,
+  Sun,
+  User,
+} from 'lucide-react';
+import { DialectId, ThemePreference } from '../types';
+import { DIALECTS, DIALECT_IDS } from '../lib/dialects';
+import { BRAND } from '../lib/brand';
+import { DialectFlag } from './icons/DialectFlag';
+import { SpeakerAvatar } from './SpeakerAvatar';
 
 interface SettingsProps {
-  currentDialect: DialectType;
-  downloadedDialects: DialectType[];
-  onDialectChange: (dialect: DialectType) => void;
-  onDownloadDialect: (dialect: DialectType) => void;
-  onDeleteDialect: (dialect: DialectType) => void;
+  dialect: DialectId;
+  theme: ThemePreference;
+  onDialectChange: (dialect: DialectId) => void;
+  onThemeChange: (theme: ThemePreference) => void;
   onClose: () => void;
 }
 
+const THEMES: Array<{ id: ThemePreference; label: string; icon: typeof Sun }> = [
+  { id: 'light', label: 'Light', icon: Sun },
+  { id: 'dark', label: 'Dark', icon: Moon },
+  { id: 'system', label: 'System', icon: Monitor },
+];
+
+const UPCOMING = [
+  { icon: User, title: 'Profile', desc: 'Track what you have practised' },
+  { icon: Globe, title: 'App language', desc: 'Interface beyond English' },
+  { icon: Heart, title: `Support ${BRAND.name}`, desc: 'Help keep the app free' },
+];
+
+const SPEAKERS = [
+  { name: 'Habib', dialect: 'Jordanian' },
+  { name: 'Ghaina', dialect: 'Jordanian' },
+  { name: 'Halad', dialect: 'Jordanian' },
+  { name: 'Salim', dialect: 'Jordanian' },
+];
+
 export function Settings({
-  currentDialect,
-  downloadedDialects,
+  dialect,
+  theme,
   onDialectChange,
-  onDownloadDialect,
-  onDeleteDialect,
+  onThemeChange,
   onClose,
 }: SettingsProps) {
-  const [showDownloadSection, setShowDownloadSection] = useState(false);
-
-  const dialectInfo: Record<DialectType, { flag: string; name: string; size: string; color: string; bgGradient: string }> = {
-    Egyptian: { 
-      flag: '🇪🇬', 
-      name: 'Egyptian Arabic', 
-      size: '~25 MB',
-      color: 'text-amber-600',
-      bgGradient: 'from-amber-500 to-orange-600',
-    },
-    Levantine: { 
-      flag: '🇯🇴', 
-      name: 'Levantine Arabic', 
-      size: '~25 MB',
-      color: 'text-indigo-600',
-      bgGradient: 'from-indigo-500 to-purple-600',
-    },
-  };
-
-  const isDownloaded = (dialect: DialectType) => downloadedDialects.includes(dialect);
-  const isOnline = navigator.onLine;
-
-  if (showDownloadSection) {
-    return (
-      <div className="h-full flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
-        {/* Header */}
-        <motion.div 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className={`bg-gradient-to-r ${dialectInfo[currentDialect].bgGradient} text-white p-6 shadow-lg`}
-        >
-          <div className="flex items-center gap-3">
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setShowDownloadSection(false)}
-              className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </motion.button>
-            <div>
-              <h2 className="text-2xl">Offline Downloads</h2>
-              <p className="text-white/80 text-sm">Manage your dialect packages</p>
-            </div>
-          </div>
-          {!isOnline && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-4 bg-white/20 backdrop-blur-sm text-white p-3 rounded-xl text-sm"
-            >
-              📶 You're currently offline. Connect to internet to download dialects.
-            </motion.div>
-          )}
-        </motion.div>
-
-        {/* Download Options */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-2xl mx-auto space-y-4">
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-gray-600 text-sm mb-6 bg-white p-4 rounded-xl shadow-sm"
-            >
-              💾 Download dialect audio and content for offline use. Each dialect includes all phrases with native speaker pronunciation.
-            </motion.p>
-
-            {(Object.keys(dialectInfo) as DialectType[]).map((dialect, index) => {
-              const info = dialectInfo[dialect];
-              const downloaded = isDownloaded(dialect);
-
-              return (
-                <motion.div
-                  key={dialect}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="bg-white rounded-2xl p-6 border-2 border-gray-200 shadow-md hover:shadow-xl transition-shadow"
-                >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-4">
-                      <motion.span 
-                        className="text-4xl"
-                        animate={{ rotate: [0, -10, 10, -10, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                      >
-                        {info.flag}
-                      </motion.span>
-                      <div>
-                        <h3 className="text-xl mb-1">{info.name}</h3>
-                        <p className="text-sm text-gray-500">{info.size}</p>
-                      </div>
-                    </div>
-                    {downloaded && (
-                      <motion.span 
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className={`text-xs px-3 py-1 bg-gradient-to-r ${info.bgGradient} text-white rounded-full flex items-center gap-1 shadow-md`}
-                      >
-                        <Sparkles className="w-3 h-3" />
-                        Downloaded
-                      </motion.span>
-                    )}
-                  </div>
-
-                  <div className="flex gap-3">
-                    {!downloaded ? (
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => onDownloadDialect(dialect)}
-                        disabled={!isOnline}
-                        className={`flex-1 py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-md ${
-                          isOnline
-                            ? `bg-gradient-to-r ${info.bgGradient} text-white hover:shadow-lg`
-                            : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        }`}
-                      >
-                        <Download className="w-5 h-5" />
-                        <span>Download</span>
-                      </motion.button>
-                    ) : (
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => onDeleteDialect(dialect)}
-                        className="flex-1 py-3 rounded-xl bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex items-center justify-center gap-2 shadow-sm hover:shadow-md"
-                      >
-                        <Trash2 className="w-5 h-5" />
-                        <span>Delete</span>
-                      </motion.button>
-                    )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const currentInfo = dialectInfo[currentDialect];
-
   return (
-    <div className="h-full flex flex-col bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <motion.div 
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className={`bg-gradient-to-r ${currentInfo.bgGradient} text-white p-6 shadow-lg`}
-      >
-        <div className="flex items-center gap-3">
-          <motion.button
-            whileHover={{ scale: 1.1, rotate: -90 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={onClose}
-            className="p-2 hover:bg-white/20 rounded-lg transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </motion.button>
-          <div>
-            <h2 className="text-2xl">Settings</h2>
-            <p className="text-white/80 text-sm">Customize your experience</p>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Settings Content */}
-      <div className="flex-1 overflow-y-auto p-6">
-        {/* Current Dialect */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl p-6 shadow-md mb-6"
+    <div className="flex h-full flex-col">
+      <header className="flex items-center gap-3 border-b border-line bg-surface-raised px-4 py-3">
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Back"
+          className="-ml-2 rounded-lg p-2 text-ink-muted transition-colors hover:bg-surface hover:text-ink"
         >
-          <div className="flex items-center gap-2 mb-4">
-            <Sparkles className={currentInfo.color} />
-            <h3 className="text-lg">Current Dialect</h3>
-          </div>
-          <div className="space-y-3">
-            {(Object.keys(dialectInfo) as DialectType[]).map((dialect) => {
-              const info = dialectInfo[dialect];
+          <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+        </button>
+        <h2 className="font-semibold text-ink">Settings</h2>
+      </header>
+
+      <div className="scroll-clean flex-1 space-y-6 overflow-y-auto p-4">
+        <Section title="Dialect">
+          <div className="space-y-2">
+            {DIALECT_IDS.map((id) => {
+              const config = DIALECTS[id];
+              const isActive = dialect === id;
+
               return (
-                <motion.button
-                  key={dialect}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => onDialectChange(dialect)}
-                  className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
-                    currentDialect === dialect
-                      ? `border-transparent bg-gradient-to-br ${info.bgGradient} text-white shadow-lg`
-                      : 'border-gray-200 hover:border-gray-300 bg-white'
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => onDialectChange(id)}
+                  aria-pressed={isActive}
+                  className={`flex w-full items-center gap-3 rounded-xl border p-3.5 text-left transition-colors ${
+                    isActive
+                      ? 'border-brand bg-brand-softer'
+                      : 'border-line bg-card hover:border-brand-line'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{info.flag}</span>
-                    <span>{info.name}</span>
-                  </div>
-                  <AnimatePresence>
-                    {currentDialect === dialect && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        className="w-6 h-6 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center"
-                      >
-                        <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.button>
+                  <DialectFlag dialect={id} size={26} />
+
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-2">
+                      <span className="font-semibold text-ink">{config.label} Arabic</span>
+                      <span lang="ar" dir="rtl" className="text-sm text-ink-soft">
+                        {config.nativeName}
+                      </span>
+                    </span>
+                    <span className="mt-0.5 block text-xs text-ink-soft">{config.region}</span>
+                    <span className="mt-1.5 inline-flex items-center gap-1 text-[0.6875rem] font-medium">
+                      {config.audio === 'available' ? (
+                        <span className="text-brand-ink">
+                          Native recordings · {config.variant}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-ink-soft">
+                          <Clock className="h-3 w-3" aria-hidden="true" />
+                          Recordings in production
+                        </span>
+                      )}
+                    </span>
+                  </span>
+
+                  {isActive && (
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand">
+                      <Check className="h-3 w-3 text-on-brand" aria-hidden="true" />
+                    </span>
+                  )}
+                </button>
               );
             })}
           </div>
-        </motion.div>
+        </Section>
 
-        {/* Offline Downloads */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl shadow-md mb-6 overflow-hidden"
-        >
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-            onClick={() => setShowDownloadSection(true)}
-            className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors"
-          >
-            <div className="flex items-center gap-4">
-              <div className={`w-12 h-12 bg-gradient-to-br ${currentInfo.bgGradient} rounded-xl flex items-center justify-center shadow-md`}>
-                <Download className="w-6 h-6 text-white" />
-              </div>
-              <div className="text-left">
-                <h3 className="text-lg">Offline Downloads</h3>
-                <p className="text-sm text-gray-500">
-                  {downloadedDialects.length} dialect{downloadedDialects.length !== 1 ? 's' : ''} downloaded
-                </p>
-              </div>
-            </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          </motion.button>
-        </motion.div>
+        <Section title="Appearance">
+          <div className="flex gap-2">
+            {THEMES.map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => onThemeChange(id)}
+                aria-pressed={theme === id}
+                className={`flex flex-1 flex-col items-center gap-1.5 rounded-xl border p-3 text-xs font-medium transition-colors ${
+                  theme === id
+                    ? 'border-brand bg-brand-softer text-brand-ink'
+                    : 'border-line bg-card text-ink-muted hover:border-brand-line'
+                }`}
+              >
+                <Icon className="h-4 w-4" aria-hidden="true" />
+                {label}
+              </button>
+            ))}
+          </div>
+        </Section>
 
-        {/* Future Features */}
-        <div className="space-y-3">
-          <p className="text-sm text-gray-500 px-2 mb-3">Coming Soon ✨</p>
-          {[
-            { icon: User, title: 'Profile', desc: 'Customize your learning profile', color: 'from-blue-400 to-blue-600' },
-            { icon: Globe, title: 'Preferred Language', desc: 'Change app language', color: 'from-green-400 to-green-600' },
-            { icon: Heart, title: 'Support & Donate', desc: 'Help keep World Peas free', color: 'from-pink-400 to-pink-600' },
-            { icon: Mic, title: 'Voice Attribution', desc: 'Credits for audio recordings', color: 'from-purple-400 to-purple-600' },
-          ].map((item, index) => (
-            <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + index * 0.05 }}
-              className="bg-white/50 rounded-xl p-4 flex items-center gap-4 opacity-60"
-            >
-              <div className={`w-10 h-10 bg-gradient-to-br ${item.color} rounded-lg flex items-center justify-center`}>
-                <item.icon className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h3 className="text-sm">{item.title}</h3>
-                <p className="text-xs text-gray-500">{item.desc}</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+        <Section title="Voices">
+          <div className="rounded-xl border border-line bg-card p-4">
+            <p className="text-sm leading-relaxed text-ink-muted">
+              Every recording in this app was made by a native speaker. No synthesis.
+            </p>
+            <ul className="mt-4 grid grid-cols-2 gap-3">
+              {SPEAKERS.map((speaker) => (
+                <li key={speaker.name} className="flex items-center gap-2.5">
+                  <SpeakerAvatar name={speaker.name} size={38} />
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-ink">
+                      {speaker.name}
+                    </span>
+                    <span className="block text-xs text-ink-soft">{speaker.dialect}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Section>
 
-        {/* App Info */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6 p-4 text-center text-sm text-gray-500"
-        >
-          <p>World Peas v1.0.0</p>
-          <p className="mt-1">Arabic Survival Guide for Travelers ✈️</p>
-        </motion.div>
+        <Section title="Offline">
+          <p className="mb-2 px-1 text-xs leading-relaxed text-ink-soft">
+            Phrases, transliterations, and bookmarks work without a connection, and any recording
+            you have already played is kept for offline replay. Downloading a whole dialect up
+            front is still to come.
+          </p>
+
+          <div className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-card">
+            {DIALECT_IDS.map((id) => {
+              const config = DIALECTS[id];
+              return (
+                <div key={id} className="flex items-center gap-3 p-3.5">
+                  <DialectFlag dialect={id} size={22} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-medium text-ink">
+                      {config.label} audio pack
+                    </span>
+                    <span className="block text-xs text-ink-soft">
+                      {config.audio === 'available'
+                        ? 'Listen without a connection'
+                        : 'Available once recordings ship'}
+                    </span>
+                  </span>
+                  <SoonButton label={`Download ${config.label} audio pack`} />
+                </div>
+              );
+            })}
+          </div>
+        </Section>
+
+        <Section title="Also coming">
+          <div className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-card">
+            {UPCOMING.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex items-center gap-3 p-3.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface">
+                  <Icon className="h-4 w-4 text-ink-soft" aria-hidden="true" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-medium text-ink">{title}</span>
+                  <span className="block text-xs text-ink-soft">{desc}</span>
+                </span>
+                <SoonPill />
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <p className="pb-2 text-center text-xs text-ink-soft">
+          {BRAND.name} · {BRAND.tagline}
+        </p>
       </div>
     </div>
+  );
+}
+
+/** Visible but inert, and labelled as such — an affordance that promises
+    nothing it cannot do yet. */
+function SoonPill() {
+  return (
+    <span className="shrink-0 rounded-full bg-surface px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wider text-ink-soft">
+      Soon
+    </span>
+  );
+}
+
+function SoonButton({ label }: { label: string }) {
+  return (
+    <button
+      type="button"
+      disabled
+      aria-label={`${label} — coming soon`}
+      title="Coming soon"
+      className="flex shrink-0 items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-ink-soft opacity-70"
+    >
+      <Download className="h-3.5 w-3.5" aria-hidden="true" />
+      Soon
+    </button>
+  );
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <section>
+      <h3 className="mb-2 px-1 text-xs font-semibold uppercase tracking-wider text-ink-soft">
+        {title}
+      </h3>
+      {children}
+    </section>
   );
 }
