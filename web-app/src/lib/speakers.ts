@@ -18,14 +18,12 @@ export interface Speaker {
  * pointing at it here.
  */
 export const SPEAKERS: Speaker[] = [
-  // Jordanian — the four voices behind every Levantine recording.
-  { id: 'habib', name: 'Habib', dialectId: 'levantine', photo: '/speakers/habib.jpg', nameConfirmed: true },
+  // Jordanian — the four voices behind every Levantine recording. Habib and
+  // Ghaina have no portrait yet and render the generated motif instead.
+  { id: 'habib', name: 'Habib', dialectId: 'levantine', nameConfirmed: true },
   { id: 'ghaina', name: 'Ghaina', dialectId: 'levantine', nameConfirmed: true },
-  // NOTE: photo file is khalid.jpg but the phrase data calls this speaker
-  // "Halad". Very likely the same person with the name mis-typed in the data —
-  // confirm, then either rename the file or fix SpeakerName across the corpus.
-  { id: 'halad', name: 'Halad', dialectId: 'levantine', photo: '/speakers/khalid.jpg', nameConfirmed: false },
-  { id: 'salim', name: 'Salim', dialectId: 'levantine', nameConfirmed: true },
+  { id: 'khalid', name: 'Khalid', dialectId: 'levantine', photo: '/speakers/khalid.jpg', nameConfirmed: true },
+  { id: 'salim', name: 'Salim', dialectId: 'levantine', photo: '/speakers/salim.jpg', nameConfirmed: true },
 
   // Egyptian — portraits in hand, recordings still being edited, names to confirm.
   { id: 'eg1', name: 'Egyptian voice', dialectId: 'egyptian', photo: '/speakers/egypt1.jpg', nameConfirmed: false },
