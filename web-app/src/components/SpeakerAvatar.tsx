@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 /**
  * Generated speaker avatars.
  *
@@ -45,9 +47,29 @@ interface SpeakerAvatarProps {
   name: string;
   size?: number;
   className?: string;
+  /** Portrait URL. Falls back to the generated motif when absent or broken. */
+  photo?: string;
 }
 
-export function SpeakerAvatar({ name, size = 44, className = '' }: SpeakerAvatarProps) {
+export function SpeakerAvatar({ name, size = 44, className = '', photo }: SpeakerAvatarProps) {
+  const [photoFailed, setPhotoFailed] = useState(false);
+
+  if (photo && !photoFailed) {
+    return (
+      <img
+        src={photo}
+        alt={name}
+        width={size}
+        height={size}
+        loading="lazy"
+        decoding="async"
+        onError={() => setPhotoFailed(true)}
+        style={{ width: size, height: size }}
+        className={`shrink-0 rounded-full object-cover ring-1 ring-line ${className}`}
+      />
+    );
+  }
+
   const index = motifFor(name);
   const initial = name.trim().charAt(0).toUpperCase();
   const clipId = `avatar-clip-${name.toLowerCase()}`;

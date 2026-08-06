@@ -10,6 +10,7 @@ import { OnboardingDialog } from './components/OnboardingDialog';
 import { PhraseDetail } from './components/PhraseDetail';
 import { Masthead } from './components/Masthead';
 import { Logo } from './components/Logo';
+import { PreviewSizer, usePhoneSize } from './components/PreviewSizer';
 
 import { phrases as PHRASES } from './data/phrases';
 import { DIALECTS, applyDocumentTheme, dialectFromLabel } from './lib/dialects';
@@ -107,6 +108,33 @@ export default function App() {
     [openPhraseId]
   );
 
+  const { size, setSize } = usePhoneSize();
+
+  /** Drag the panel's corner to resize. Desktop only — the handle is hidden
+      below lg, where the app fills the viewport anyway. */
+  const startResize = useCallback(
+    (e: React.PointerEvent) => {
+      e.preventDefault();
+      const x0 = e.clientX;
+      const y0 = e.clientY;
+      const w0 = size.w;
+      const h0 = size.h;
+
+      const onMove = (ev: PointerEvent) =>
+        setSize({ w: w0 + (ev.clientX - x0), h: h0 + (ev.clientY - y0) });
+      const onUp = () => {
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('pointerup', onUp);
+        document.body.style.userSelect = '';
+      };
+
+      document.body.style.userSelect = 'none';
+      window.addEventListener('pointermove', onMove);
+      window.addEventListener('pointerup', onUp);
+    },
+    [size, setSize]
+  );
+
   if (!settings.hasCompletedOnboarding) {
     return (
       <OnboardingDialog
@@ -157,9 +185,32 @@ export default function App() {
               </div>
             ))}
           </dl>
+
+          <PreviewSizer size={size} onChange={setSize} />
         </aside>
 
-        <div className="flex h-dvh w-full flex-col overflow-hidden bg-surface lg:h-[46rem] lg:max-h-[86vh] lg:w-[26rem] lg:rounded-[1.25rem] lg:border lg:border-line lg:shadow-lift">
+        {/* Fixed on mobile (the app owns the viewport); on desktop the panel
+            takes its dimensions from the preview controls. */}
+        <div
+          style={{ '--pw': `${size.w}px`, '--ph': `${size.h}px` } as React.CSSProperties}
+          className="relative flex h-dvh w-full flex-col overflow-hidden bg-surface lg:h-[var(--ph)] lg:max-h-[92vh] lg:w-[var(--pw)] lg:rounded-[1.25rem] lg:border lg:border-line lg:shadow-lift"
+        >
+          <button
+            type="button"
+            onPointerDown={startResize}
+            aria-label={`Resize preview — currently ${size.w} by ${size.h} pixels`}
+            className="absolute -bottom-1 -right-1 z-30 hidden h-6 w-6 cursor-nwse-resize items-center justify-center rounded-full border border-line bg-card text-ink-soft transition-colors hover:border-brand hover:text-brand lg:flex"
+          >
+            <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+              <path
+                d="M9 1 1 9M9 5.5 5.5 9"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+
           {showSettings ? (
             <Settings
               dialect={dialect}

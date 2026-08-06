@@ -16,6 +16,7 @@ import { DIALECTS, DIALECT_IDS } from '../lib/dialects';
 import { BRAND } from '../lib/brand';
 import { DialectFlag } from './icons/DialectFlag';
 import { SpeakerAvatar } from './SpeakerAvatar';
+import { speakersFor } from '../lib/speakers';
 
 interface SettingsProps {
   dialect: DialectId;
@@ -35,13 +36,6 @@ const UPCOMING = [
   { icon: User, title: 'Profile', desc: 'Track what you have practised' },
   { icon: Globe, title: 'App language', desc: 'Interface beyond English' },
   { icon: Heart, title: `Support ${BRAND.name}`, desc: 'Help keep the app free' },
-];
-
-const SPEAKERS = [
-  { name: 'Habib', dialect: 'Jordanian' },
-  { name: 'Ghaina', dialect: 'Jordanian' },
-  { name: 'Halad', dialect: 'Jordanian' },
-  { name: 'Salim', dialect: 'Jordanian' },
 ];
 
 export function Settings({
@@ -141,23 +135,53 @@ export function Settings({
         </Section>
 
         <Section title="Voices">
-          <div className="rounded-xl border border-line bg-card p-4">
-            <p className="text-sm leading-relaxed text-ink-muted">
-              Every recording in this app was made by a native speaker. No synthesis.
+          <div className="space-y-2">
+            <p className="px-1 text-xs leading-relaxed text-ink-soft">
+              Every recording is a native speaker. No synthesis.
             </p>
-            <ul className="mt-4 grid grid-cols-2 gap-3">
-              {SPEAKERS.map((speaker) => (
-                <li key={speaker.name} className="flex items-center gap-2.5">
-                  <SpeakerAvatar name={speaker.name} size={38} />
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-ink">
-                      {speaker.name}
+
+            {DIALECT_IDS.map((id) => {
+              const people = speakersFor(id);
+              if (!people.length) return null;
+              const config = DIALECTS[id];
+
+              return (
+                <div key={id} className="overflow-hidden rounded-xl border border-line bg-card">
+                  <div className="flex items-baseline justify-between gap-2 border-b border-line px-3.5 py-2.5">
+                    <span className="text-[0.6875rem] font-semibold uppercase tracking-[0.16em] text-ink">
+                      {config.variant}
                     </span>
-                    <span className="block text-xs text-ink-soft">{speaker.dialect}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
+                    <span className="text-[0.6875rem] text-ink-soft">
+                      {config.audio === 'available'
+                        ? `${people.length} voices`
+                        : 'recordings pending'}
+                    </span>
+                  </div>
+
+                  <ul className="grid grid-cols-2 gap-3 p-3.5">
+                    {people.map((speaker) => (
+                      <li key={speaker.id} className="flex items-center gap-2.5">
+                        <SpeakerAvatar
+                          name={speaker.name}
+                          photo={speaker.photo}
+                          size={38}
+                        />
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-medium text-ink">
+                            {speaker.name}
+                          </span>
+                          {!speaker.nameConfirmed && (
+                            <span className="block text-[0.6875rem] text-ink-soft">
+                              name to confirm
+                            </span>
+                          )}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
           </div>
         </Section>
 

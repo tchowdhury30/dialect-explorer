@@ -5,7 +5,9 @@
 ```bash
 cd web-app
 npm install
-npm run dev          # localhost:3000
+npm run dev          # port 3000 is often taken by another project
+                     # on this machine — use `npm run dev -- --port 5180`
+                     # and open 127.0.0.1, not localhost (IPv4/IPv6 clash)
 npm run typecheck    # TypeScript errors
 npm run lint         # ESLint warnings/errors
 ```
