@@ -1,0 +1,43 @@
+# Netlify build config.
+#
+# The app is not at the repo root — `base` points Netlify at web-app/, and
+# `publish` is then resolved relative to that base, so this maps to
+# web-app/build.
+
+[build]
+  base = "web-app"
+  command = "npm run build"
+  publish = "build"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Single-page app: every path serves the same document.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Vite content-hashes these filenames, so a cache hit can never be stale.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The service worker must always revalidate, or a deploy cannot roll out.
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Portraits and icons change rarely but are not content-hashed — a day is a
+# safe compromise between freshness and repeat-visit cost.
+[[headers]]
+  for = "/speakers/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
