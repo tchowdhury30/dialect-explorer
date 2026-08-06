@@ -1,175 +1,167 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
-import { PhraseCard } from './PhraseCard';
-import { PhraseDetail } from './PhraseDetail';
-import { Search as SearchIcon, WifiOff } from 'lucide-react';
-import { Phrase } from '../types';
+import { Search as SearchIcon, WifiOff, X } from 'lucide-react';
+import { PhraseCard, PhraseList } from './PhraseCard';
+import { DialectId, Phrase, PhraseState } from '../types';
+import { matchesQuery } from '../lib/phrase';
+import { SectionHead } from './SectionHead';
 
 interface SearchProps {
   phrases: Phrase[];
-  onPhraseUpdate: (phrase: Phrase) => void;
-  downloadedDialects: string[];
-  currentDialect: 'Egyptian' | 'Levantine';
+  dialect: DialectId;
+  getState: (id: string) => PhraseState;
+  onOpenPhrase: (phrase: Phrase) => void;
+  onToggleBookmark: (id: string) => void;
 }
 
-export function Search({ phrases, onPhraseUpdate, downloadedDialects, currentDialect }: SearchProps) {
-  const dialectColors = {
-    Egyptian: {
-      ring: 'focus:ring-amber-500',
-      text: 'text-amber-600',
-    },
-    Levantine: {
-      ring: 'focus:ring-indigo-500',
-      text: 'text-indigo-600',
-    },
-  };
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedPhrase, setSelectedPhrase] = useState<Phrase | null>(null);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+export function Search({
+  phrases,
+  dialect,
+  getState,
+  onOpenPhrase,
+  onToggleBookmark,
+}: SearchProps) {
+  const [query, setQuery] = useState('');
+  const [isOnline, setIsOnline] = useState(() => navigator.onLine);
 
-  // Monitor online/offline status
   useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
+    const online = () => setIsOnline(true);
+    const offline = () => setIsOnline(false);
+    window.addEventListener('online', online);
+    window.addEventListener('offline', offline);
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', online);
+      window.removeEventListener('offline', offline);
     };
   }, []);
 
-  const filteredPhrases = useMemo(() => {
-    if (!searchQuery.trim()) return [];
+  const results = useMemo(
+    () => (query.trim() ? phrases.filter((p) => matchesQuery(p, query)) : []),
+    [phrases, query]
+  );
 
-    const query = searchQuery.toLowerCase();
-    let results = phrases.filter(
-      (phrase) =>
-        phrase.english.toLowerCase().includes(query) ||
-        phrase.fushaArabic.includes(query) ||
-        phrase.fushaTransliteration.toLowerCase().includes(query) ||
-        phrase.dialects.some(
-          (d) =>
-            d.arabicScript.includes(query) ||
-            d.transliteration.toLowerCase().includes(query)
-        )
-    );
+  /** Suggestions before the user types: whatever they open most. */
+  const suggestions = useMemo(
+    () =>
+      [...phrases]
+        .map((p) => ({ phrase: p, views: getState(p.id).timesQueried }))
+        .filter((x) => x.views > 0)
+        .sort((a, b) => b.views - a.views)
+        .slice(0, 5)
+        .map((x) => x.phrase),
+    [phrases, getState]
+  );
 
-    // If offline, only show phrases from downloaded dialects
-    if (!isOnline && downloadedDialects.length > 0) {
-      results = results.filter((phrase) =>
-        phrase.dialects.some((d) => downloadedDialects.includes(d.name))
-      );
-    }
-
-    return results;
-  }, [searchQuery, isOnline, downloadedDialects, phrases]);
-
-  const handlePhraseClick = (phrase: Phrase) => {
-    const updatedPhrase = { ...phrase, timesQueried: phrase.timesQueried + 1 };
-    onPhraseUpdate(updatedPhrase);
-    setSelectedPhrase(updatedPhrase);
-  };
-
-  const handleBookmarkToggle = (phrase: Phrase) => {
-    const updatedPhrase = { ...phrase, isBookmarked: !phrase.isBookmarked };
-    onPhraseUpdate(updatedPhrase);
-    if (selectedPhrase?.id === phrase.id) {
-      setSelectedPhrase(updatedPhrase);
-    }
-  };
+  const hasQuery = query.trim().length > 0;
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 p-4">
-        <h2 className="text-gray-900 mb-3">Search Phrases</h2>
-        
-        {/* Offline indicator */}
-        {!isOnline && (
-          <div className="mb-3 bg-orange-100 text-orange-800 p-3 rounded-lg flex items-center gap-2 text-sm">
-            <WifiOff className="w-4 h-4 flex-shrink-0" />
-            <p>
-              {downloadedDialects.length > 0
-                ? `Offline mode - Searching in ${downloadedDialects.join(' & ')} only`
-                : 'You\'re offline. Download dialects in Settings to use offline search.'}
-            </p>
-          </div>
-        )}
-        
+    <div className="flex h-full flex-col">
+      <header className="px-[22px] pb-4 pt-[26px]">
+        <h2 className="mb-3 text-[0.625rem] font-semibold uppercase tracking-[0.24em] text-ink">
+          Search
+        </h2>
+
         <div className="relative">
-          <SearchIcon className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${searchQuery ? dialectColors[currentDialect].text : 'text-gray-400'}`} />
-          <input
-            type="text"
-            placeholder="Search in Arabic, English, or transliteration..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={`w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 ${dialectColors[currentDialect].ring} focus:border-transparent transition-all`}
+          <SearchIcon
+            className={`pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 transition-colors ${
+              hasQuery ? 'text-brand' : 'text-ink-soft'
+            }`}
+            aria-hidden="true"
           />
-        </div>
-      </div>
-
-      {/* Results */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {!searchQuery.trim() ? (
-          <div className="flex flex-col items-center justify-center h-full text-center px-6">
-            <SearchIcon className="w-16 h-16 text-gray-300 mb-4" />
-            <h3 className="text-gray-900 mb-2">Search for phrases</h3>
-            <p className="text-gray-500">
-              Enter Arabic text, English, or transliteration to find phrases
-            </p>
-          </div>
-        ) : filteredPhrases.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center px-6">
-            <SearchIcon className="w-16 h-16 text-gray-300 mb-4" />
-            <h3 className="text-gray-900 mb-2">No results found</h3>
-            <p className="text-gray-500">
-              Try searching with different keywords
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className={`text-sm ${dialectColors[currentDialect].text} mb-3`}
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="English, Arabic, or transliteration…"
+            aria-label="Search phrases"
+            className="w-full rounded-card border border-line bg-card py-2.5 pl-10 pr-10 text-sm text-ink placeholder:text-ink-soft focus:border-brand focus:outline-none"
+          />
+          {hasQuery && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-ink-soft transition-colors hover:bg-surface hover:text-ink"
             >
-              ✨ {filteredPhrases.length} {filteredPhrases.length === 1 ? 'result' : 'results'} found
-            </motion.p>
-            {filteredPhrases.map((phrase, index) => (
-              <motion.div
-                key={phrase.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-              >
-                <PhraseCard
-                  phrase={phrase}
-                  onClick={() => handlePhraseClick(phrase)}
-                  onBookmarkToggle={(e) => {
-                    e.stopPropagation();
-                    handleBookmarkToggle(phrase);
-                  }}
-                  currentDialect={currentDialect}
-                />
-              </motion.div>
-            ))}
-          </div>
+              <X className="h-4 w-4" aria-hidden="true" />
+            </button>
+          )}
+        </div>
+
+        {!isOnline && (
+          <p className="mt-3 flex items-center gap-2 rounded-lg bg-brand-softer px-3 py-2 text-xs text-ink-muted">
+            <WifiOff className="h-3.5 w-3.5 shrink-0 text-brand" aria-hidden="true" />
+            You're offline. Phrases still work — audio needs a connection.
+          </p>
+        )}
+      </header>
+
+      <div className="scroll-clean flex-1 overflow-y-auto">
+        {!hasQuery ? (
+          suggestions.length > 0 ? (
+            <>
+              <SectionHead title="Recently viewed" meta={`${suggestions.length}`} />
+              <PhraseList>
+                {suggestions.map((phrase, i) => (
+                  <PhraseCard
+                    key={phrase.id}
+                    phrase={phrase}
+                    dialect={dialect}
+                    index={i}
+                    state={getState(phrase.id)}
+                    onOpen={() => onOpenPhrase(phrase)}
+                    onToggleBookmark={() => onToggleBookmark(phrase.id)}
+                  />
+                ))}
+              </PhraseList>
+            </>
+          ) : (
+            <EmptyState
+              title="Find a phrase fast"
+              body="Type in English, Arabic script, or transliteration — all three are searched."
+            />
+          )
+        ) : results.length === 0 ? (
+          <EmptyState
+            title="No matches"
+            body={`Nothing found for “${query.trim()}”. Try a shorter or simpler word.`}
+          />
+        ) : (
+          <>
+            <SectionHead
+              title="Results"
+              meta={`${results.length} ${results.length === 1 ? 'match' : 'matches'}`}
+            />
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
+              <PhraseList>
+                {results.map((phrase, i) => (
+                  <PhraseCard
+                    key={phrase.id}
+                    phrase={phrase}
+                    dialect={dialect}
+                    index={i}
+                    state={getState(phrase.id)}
+                    onOpen={() => onOpenPhrase(phrase)}
+                    onToggleBookmark={() => onToggleBookmark(phrase.id)}
+                  />
+                ))}
+              </PhraseList>
+            </motion.div>
+          </>
         )}
       </div>
+    </div>
+  );
+}
 
-      {/* Phrase Detail Modal */}
-      {selectedPhrase && (
-        <PhraseDetail
-          phrase={selectedPhrase}
-          onClose={() => setSelectedPhrase(null)}
-          onBookmarkToggle={() => {
-            handleBookmarkToggle(selectedPhrase);
-          }}
-        />
-      )}
+function EmptyState({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="flex h-full flex-col items-center justify-center px-10 pb-16 text-center">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-card border border-line">
+        <SearchIcon className="h-5 w-5 text-ink-soft" aria-hidden="true" />
+      </div>
+      <h3 className="text-[0.625rem] font-semibold uppercase tracking-[0.24em] text-ink">{title}</h3>
+      <p className="mt-2.5 max-w-xs text-[0.8125rem] italic leading-relaxed text-ink-soft">{body}</p>
     </div>
   );
 }

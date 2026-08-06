@@ -1,173 +1,190 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
-import { PhraseCard } from './PhraseCard';
-import { PhraseDetail } from './PhraseDetail';
-import { Bookmark, Heart } from 'lucide-react';
-import { Folder, Phrase } from '../types';
+import { Bookmark, FolderPlus, Plus, X } from 'lucide-react';
+import { PhraseCard, PhraseList } from './PhraseCard';
+import { DialectId, Folder, Phrase, PhraseState } from '../types';
 
 interface BookmarksProps {
-  onPhraseUpdate: (phrase: Phrase) => void;
-  allPhrases: Phrase[];
-  currentDialect: 'Egyptian' | 'Levantine';
+  phrases: Phrase[];
+  dialect: DialectId;
   folders: Folder[];
+  getState: (id: string) => PhraseState;
+  onOpenPhrase: (phrase: Phrase) => void;
+  onToggleBookmark: (id: string) => void;
   onAddFolder: (name: string) => void;
   onAssignFolder: (phraseId: string, folderId?: string) => void;
 }
 
-export function Bookmarks({ onPhraseUpdate, allPhrases, currentDialect, folders, onAddFolder, onAssignFolder }: BookmarksProps) {
-  const dialectColors = {
-    Egyptian: {
-      text: 'text-amber-600',
-    },
-    Levantine: {
-      text: 'text-indigo-600',
-    },
-  };
-  const [selectedPhrase, setSelectedPhrase] = useState<Phrase | null>(null);
-  const [selectedFolderId, setSelectedFolderId] = useState<string>('all');
-  const [newFolderName, setNewFolderName] = useState('');
+export function Bookmarks({
+  phrases,
+  dialect,
+  folders,
+  getState,
+  onOpenPhrase,
+  onToggleBookmark,
+  onAddFolder,
+  onAssignFolder,
+}: BookmarksProps) {
+  const [activeFolder, setActiveFolder] = useState<string>('all');
+  const [isAdding, setIsAdding] = useState(false);
+  const [draftName, setDraftName] = useState('');
 
-  const bookmarkedPhrases = useMemo(() => {
-    return allPhrases.filter((p) => p.isBookmarked);
-  }, [allPhrases]);
+  const saved = useMemo(
+    () => phrases.filter((p) => getState(p.id).isBookmarked),
+    [phrases, getState]
+  );
 
-  const filteredPhrases = useMemo(() => {
-    if (selectedFolderId === 'all') return bookmarkedPhrases;
-    if (selectedFolderId === 'none') return bookmarkedPhrases.filter((p) => !p.folderId);
-    return bookmarkedPhrases.filter((p) => p.folderId === selectedFolderId);
-  }, [bookmarkedPhrases, selectedFolderId]);
+  const visible = useMemo(() => {
+    if (activeFolder === 'all') return saved;
+    if (activeFolder === 'none') return saved.filter((p) => !getState(p.id).folderId);
+    return saved.filter((p) => getState(p.id).folderId === activeFolder);
+  }, [saved, activeFolder, getState]);
 
-  const handlePhraseClick = (phrase: Phrase) => {
-    const updatedPhrase = { ...phrase, timesQueried: phrase.timesQueried + 1 };
-    onPhraseUpdate(updatedPhrase);
-    setSelectedPhrase(updatedPhrase);
-  };
-
-  const handleBookmarkToggle = (phrase: Phrase) => {
-    const updatedPhrase = { ...phrase, isBookmarked: !phrase.isBookmarked };
-    onPhraseUpdate(updatedPhrase);
-    if (selectedPhrase?.id === phrase.id) {
-      setSelectedPhrase(updatedPhrase);
-    }
+  const submitFolder = () => {
+    const name = draftName.trim();
+    if (name) onAddFolder(name);
+    setDraftName('');
+    setIsAdding(false);
   };
 
-  const handleCreateFolder = () => {
-    const name = newFolderName.trim();
-    if (!name) return;
-    onAddFolder(name);
-    setNewFolderName('');
-  };
+  const filters = [
+    { id: 'all', name: 'All' },
+    { id: 'none', name: 'Unfiled' },
+    ...folders,
+  ];
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 pt-5 pb-3 px-3 mt-2">
-        <div className="flex items-center gap-2 mb-1">
-          <Heart className={`w-5 h-5 ${dialectColors[currentDialect].text} fill-current`} />
-          <h2 className="text-gray-900">Saved Phrases</h2>
+    <div className="flex h-full flex-col">
+      <header className="px-[22px] pb-3 pt-[26px]">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="text-[0.625rem] font-semibold uppercase tracking-[0.24em] text-ink">
+            Saved
+          </h2>
+          <span className="text-[0.59375rem] uppercase tabular-nums tracking-[0.12em] text-ink-soft">
+            {saved.length} {saved.length === 1 ? 'phrase' : 'phrases'}
+          </span>
         </div>
-        <p className={`text-sm ${dialectColors[currentDialect].text}`}>
-          ✨ {bookmarkedPhrases.length} {bookmarkedPhrases.length === 1 ? 'phrase' : 'phrases'} saved
-        </p>
-        <div className="mt-2 flex flex-wrap gap-1.5 items-center">
-          <span className="text-sm text-gray-600">Folders:</span>
-          {[
-            { id: 'all', name: 'All' },
-            { id: 'none', name: 'Unfiled' },
-            ...folders,
-          ].map((folder) => (
-            <button
-              key={folder.id}
-              onClick={() => setSelectedFolderId(folder.id)}
-              className={`px-3 py-1 rounded-full text-sm border transition-colors ${
-                selectedFolderId === folder.id
-                  ? currentDialect === 'Egyptian'
-                    ? 'border-amber-500 text-amber-700 bg-amber-50'
-                    : 'border-indigo-500 text-indigo-700 bg-indigo-50'
-                  : 'border-gray-200 text-gray-600 hover:border-gray-300'
-              }`}
-            >
-              {folder.name}
-            </button>
-          ))}
-        </div>
-        <div className="mt-1 flex gap-1.5 flex-col sm:flex-row sm:items-center">
-          <input
-            type="text"
-            value={newFolderName}
-            onChange={(e) => setNewFolderName(e.target.value)}
-            placeholder="New folder name"
-            className="w-full sm:flex-1 px-3 py-1.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
-          />
-          <button
-            onClick={handleCreateFolder}
-            className="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm hover:bg-gray-800 transition-colors w-full sm:w-auto"
-          >
-            Add
-          </button>
-        </div>
-      </div>
 
-      {/* Bookmarks List */}
-      <div className="flex-1 overflow-y-auto px-3 pb-3 pt-0">
-        {bookmarkedPhrases.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center px-6">
-            <Bookmark className="w-16 h-16 text-gray-300 mb-4" />
-            <h3 className="text-gray-900 mb-2">No bookmarks yet</h3>
-            <p className="text-gray-500">
-              Tap the bookmark icon on any phrase to save it for quick access
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredPhrases.map((phrase, index) => (
-              <motion.div
-                key={phrase.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ delay: index * 0.05 }}
+        {saved.length > 0 && (
+          <div className="scroll-clean -mx-[22px] mt-3.5 flex gap-1.5 overflow-x-auto px-[22px] pb-1">
+            {filters.map((folder) => (
+              <button
+                key={folder.id}
+                type="button"
+                onClick={() => setActiveFolder(folder.id)}
+                aria-pressed={activeFolder === folder.id}
+                className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  activeFolder === folder.id
+                    ? 'border-brand bg-brand text-on-brand'
+                    : 'border-line bg-card text-ink-muted hover:border-brand-line hover:text-ink'
+                }`}
               >
-                <PhraseCard
-                  phrase={phrase}
-                  onClick={() => handlePhraseClick(phrase)}
-                  onBookmarkToggle={(e) => {
-                    e.stopPropagation();
-                    handleBookmarkToggle(phrase);
-                  }}
-                  currentDialect={currentDialect}
-                />
-                <div className="mt-2 flex items-center gap-2 text-sm text-gray-600">
-                  <span>Folder:</span>
-                  <select
-                    value={phrase.folderId || ''}
-                    onChange={(e) => onAssignFolder(phrase.id, e.target.value || undefined)}
-                    className="border border-gray-300 rounded-lg px-2 py-1 text-sm"
-                  >
-                    <option value="">None</option>
-                    {folders.map((folder) => (
-                      <option key={folder.id} value={folder.id}>
-                        {folder.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </motion.div>
+                {folder.name}
+              </button>
             ))}
+
+            {isAdding ? (
+              <span className="flex shrink-0 items-center gap-1 rounded-full border border-brand-line bg-card pl-3 pr-1">
+                <input
+                  autoFocus
+                  value={draftName}
+                  onChange={(e) => setDraftName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') submitFolder();
+                    if (e.key === 'Escape') {
+                      setDraftName('');
+                      setIsAdding(false);
+                    }
+                  }}
+                  placeholder="Folder name"
+                  aria-label="New folder name"
+                  className="w-28 bg-transparent py-1.5 text-xs text-ink placeholder:text-ink-soft focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={submitFolder}
+                  aria-label="Create folder"
+                  className="rounded-full p-1 text-brand hover:bg-brand-soft"
+                >
+                  <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDraftName('');
+                    setIsAdding(false);
+                  }}
+                  aria-label="Cancel"
+                  className="rounded-full p-1 text-ink-soft hover:bg-surface"
+                >
+                  <X className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsAdding(true)}
+                className="flex shrink-0 items-center gap-1 rounded-full border border-dashed border-line px-3 py-1.5 text-xs font-medium text-ink-soft transition-colors hover:border-brand-line hover:text-brand-ink"
+              >
+                <FolderPlus className="h-3.5 w-3.5" aria-hidden="true" />
+                Folder
+              </button>
+            )}
           </div>
         )}
-      </div>
+      </header>
 
-      {/* Phrase Detail Modal */}
-      {selectedPhrase && (
-        <PhraseDetail
-          phrase={selectedPhrase}
-          onClose={() => setSelectedPhrase(null)}
-          onBookmarkToggle={() => {
-            handleBookmarkToggle(selectedPhrase);
-          }}
-        />
-      )}
+      <div className="scroll-clean flex-1 overflow-y-auto">
+        {saved.length === 0 ? (
+          <div className="flex h-full flex-col items-center justify-center px-10 pb-16 text-center">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-card border border-line">
+              <Bookmark className="h-5 w-5 text-ink-soft" aria-hidden="true" />
+            </div>
+            <h3 className="text-[0.625rem] font-semibold uppercase tracking-[0.24em] text-ink">Nothing saved yet</h3>
+            <p className="mt-2.5 max-w-xs text-[0.8125rem] italic leading-relaxed text-ink-soft">
+              Tap the bookmark on any phrase to keep it here — handy for the ones you'll need
+              on the day.
+            </p>
+          </div>
+        ) : visible.length === 0 ? (
+          <p className="py-12 text-center text-[0.8125rem] italic text-ink-soft">
+            Nothing in this folder yet.
+          </p>
+        ) : (
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
+            <PhraseList>
+              {visible.map((phrase, i) => (
+                <PhraseCard
+                  key={phrase.id}
+                  phrase={phrase}
+                  dialect={dialect}
+                  index={i}
+                  state={getState(phrase.id)}
+                  onOpen={() => onOpenPhrase(phrase)}
+                  onToggleBookmark={() => onToggleBookmark(phrase.id)}
+                  footer={
+                    folders.length > 0 ? (
+                      <select
+                        value={getState(phrase.id).folderId ?? ''}
+                        onChange={(e) => onAssignFolder(phrase.id, e.target.value || undefined)}
+                        aria-label={`Folder for “${phrase.english}”`}
+                        className="rounded-full border border-line bg-card px-2.5 py-1 text-xs text-ink-muted focus:border-brand focus:outline-none"
+                      >
+                        <option value="">Unfiled</option>
+                        {folders.map((folder) => (
+                          <option key={folder.id} value={folder.id}>
+                            {folder.name}
+                          </option>
+                        ))}
+                      </select>
+                    ) : undefined
+                  }
+                />
+              ))}
+            </PhraseList>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }

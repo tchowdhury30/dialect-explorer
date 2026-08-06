@@ -1,176 +1,212 @@
-import { Phrase } from '../types';
-import { X, Bookmark, Volume2, Copy } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { motion } from 'motion/react';
+import { Bookmark, Check, Copy, MicOff, X } from 'lucide-react';
+import { DialectId, Phrase, PhraseState } from '../types';
+import { DIALECTS } from '../lib/dialects';
+import { viewFor } from '../lib/phrase';
+import { VoiceButton } from './VoiceButton';
+import { Pill } from './Pill';
+import { useAudio } from '../lib/audio';
 
 interface PhraseDetailProps {
   phrase: Phrase;
+  dialect: DialectId;
+  state: PhraseState;
   onClose: () => void;
-  onBookmarkToggle: () => void;
+  onToggleBookmark: () => void;
 }
 
-export function PhraseDetail({ phrase, onClose, onBookmarkToggle }: PhraseDetailProps) {
-  const [copiedText, setCopiedText] = useState<string | null>(null);
+function CopyButton({ text, label }: { text: string; label: string }) {
+  const [copied, setCopied] = useState(false);
 
-  const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedText(label);
-    setTimeout(() => setCopiedText(null), 2000);
-  };
-
-  const handlePlayAudio = (dialectName: string) => {
-    // Placeholder for audio playback
-    console.log(`Playing audio for ${phrase.english} in ${dialectName}`);
-    alert(`Audio playback for ${dialectName} dialect\n(Feature coming soon)`);
-  };
+  useEffect(() => {
+    if (!copied) return;
+    const timer = setTimeout(() => setCopied(false), 1600);
+    return () => clearTimeout(timer);
+  }, [copied]);
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center">
-      <div className="bg-white w-full sm:max-w-2xl sm:rounded-lg max-h-[90vh] overflow-y-auto rounded-t-2xl">
-        {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
-          <h2 className="text-gray-900">Phrase Details</h2>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={onBookmarkToggle}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <Bookmark
-                className={`w-6 h-6 ${
-                  phrase.isBookmarked
-                    ? 'fill-emerald-600 text-emerald-600'
-                    : 'text-gray-400'
-                }`}
-              />
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X className="w-6 h-6 text-gray-600" />
-            </button>
-          </div>
-        </div>
+    <button
+      type="button"
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text);
+          setCopied(true);
+        } catch {
+          // Clipboard is unavailable over plain http or without permission.
+        }
+      }}
+      aria-label={copied ? `${label} copied` : `Copy ${label}`}
+      className="rounded-lg p-2 text-ink-soft transition-colors hover:bg-surface hover:text-ink"
+    >
+      {copied ? (
+        <Check className="h-4 w-4 text-brand" aria-hidden="true" />
+      ) : (
+        <Copy className="h-4 w-4" aria-hidden="true" />
+      )}
+    </button>
+  );
+}
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* English */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex-1">
-                <p className="text-sm text-gray-600 mb-1">English</p>
-                <p className="text-gray-900">{phrase.english}</p>
-              </div>
+export function PhraseDetail({
+  phrase,
+  dialect,
+  state,
+  onClose,
+  onToggleBookmark,
+}: PhraseDetailProps) {
+  const view = viewFor(phrase, dialect);
+  const config = DIALECTS[dialect];
+  const { stop } = useAudio();
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  // Stop playback when the sheet closes, so audio never outlives its context.
+  useEffect(() => stop, [stop]);
+
+  useEffect(() => {
+    closeRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    const { overflow } = document.body.style;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = overflow;
+    };
+  }, [onClose]);
+
+  return (
+      <motion.div
+        key="backdrop"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 z-50 flex items-end justify-center bg-black/45 backdrop-blur-[2px] sm:items-center sm:p-6"
+      >
+        <motion.div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${phrase.english} — phrase details`}
+          initial={{ y: '4%', opacity: 0.6 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: '4%', opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 34 }}
+          onClick={(e) => e.stopPropagation()}
+          className="flex max-h-[88vh] w-full flex-col overflow-hidden rounded-t-2xl bg-card shadow-sheet sm:max-w-lg sm:rounded-2xl"
+        >
+          <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
+            <Pill tone={view.isFallback ? 'muted' : 'accent'}>
+              {view.variant ?? 'Modern Standard Arabic'}
+            </Pill>
+            <div className="flex items-center gap-1">
               <button
-                onClick={() => handleCopy(phrase.english, 'English')}
-                className="p-2 hover:bg-gray-200 rounded transition-colors"
+                type="button"
+                onClick={onToggleBookmark}
+                aria-pressed={state.isBookmarked}
+                aria-label={state.isBookmarked ? 'Remove bookmark' : 'Bookmark this phrase'}
+                className={`rounded-lg p-2 transition-colors ${
+                  state.isBookmarked ? 'text-brand' : 'text-ink-soft hover:text-ink'
+                }`}
               >
-                <Copy className="w-4 h-4 text-gray-600" />
+                <Bookmark
+                  className="h-5 w-5"
+                  fill={state.isBookmarked ? 'currentColor' : 'none'}
+                />
+              </button>
+              <button
+                ref={closeRef}
+                type="button"
+                onClick={onClose}
+                aria-label="Close"
+                className="rounded-lg p-2 text-ink-soft transition-colors hover:bg-surface hover:text-ink"
+              >
+                <X className="h-5 w-5" aria-hidden="true" />
               </button>
             </div>
-            {copiedText === 'English' && (
-              <p className="text-emerald-600 text-sm mt-2">Copied!</p>
-            )}
           </div>
 
-          {/* Fusha (Modern Standard Arabic) */}
-          <div className="space-y-3">
-            <h3 className="text-gray-900">Modern Standard Arabic (Fusha)</h3>
-            
-            <div className="bg-emerald-50 rounded-lg p-4 space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-1">Arabic Script</p>
-                  <p className="text-gray-900 text-xl" dir="rtl">{phrase.fushaArabic}</p>
+          <div className="scroll-clean flex-1 overflow-y-auto">
+            {/* Hero: the phrase itself, sized to be readable at arm's length. */}
+            <div className="border-b border-line bg-brand-softer px-6 py-7">
+              <p className="text-sm text-ink-muted">{phrase.english}</p>
+              <p
+                dir="rtl"
+                lang="ar"
+                className="mt-3 text-right text-[2rem] leading-[1.7] text-ink"
+              >
+                {view.arabic}
+              </p>
+              <p className="mt-1 text-lg font-medium text-brand-ink">{view.transliteration}</p>
+
+              {view.isFallback ? (
+                <div className="mt-5 flex items-start gap-2.5 rounded-card border border-line bg-card p-3.5">
+                  <MicOff className="mt-0.5 h-4 w-4 shrink-0 text-ink-soft" aria-hidden="true" />
+                  <p className="text-sm leading-relaxed text-ink-muted">
+                    {config.audioNote ??
+                      `${config.label} recordings are not published yet.`}
+                  </p>
                 </div>
-                <button
-                  onClick={() => handleCopy(phrase.fushaArabic, 'Fusha Arabic')}
-                  className="p-2 hover:bg-emerald-100 rounded transition-colors"
-                >
-                  <Copy className="w-4 h-4 text-gray-600" />
-                </button>
-              </div>
-              {copiedText === 'Fusha Arabic' && (
-                <p className="text-emerald-600 text-sm">Copied!</p>
-              )}
-              
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1">
-                  <p className="text-sm text-gray-600 mb-1">Transliteration</p>
-                  <p className="text-gray-700">{phrase.fushaTransliteration}</p>
+              ) : view.samples.length > 0 ? (
+                <div className="mt-5">
+                  <p className="mb-1 text-[0.59375rem] font-semibold uppercase tracking-[0.2em] text-ink-soft">
+                    Voices
+                  </p>
+                  <div className="flex flex-wrap items-center border-t border-line pt-3">
+                    {view.samples.map((sample) => (
+                      <VoiceButton key={sample.speaker} sample={sample} phraseId={phrase.id} />
+                    ))}
+                  </div>
                 </div>
-                <button
-                  onClick={() => handleCopy(phrase.fushaTransliteration, 'Fusha Trans')}
-                  className="p-2 hover:bg-emerald-100 rounded transition-colors"
-                >
-                  <Copy className="w-4 h-4 text-gray-600" />
-                </button>
-              </div>
-              {copiedText === 'Fusha Trans' && (
-                <p className="text-emerald-600 text-sm">Copied!</p>
+              ) : (
+                <p className="mt-5 text-sm text-ink-soft">
+                  No recording for this phrase yet.
+                </p>
               )}
             </div>
+
+            <div className="space-y-1 p-5">
+              <Row label="English" value={phrase.english} />
+              {!view.isFallback && (
+                <>
+                  <Row
+                    label={`${view.variant} script`}
+                    value={view.arabic}
+                    arabic
+                  />
+                  <Row label={`${view.variant} transliteration`} value={view.transliteration} />
+                </>
+              )}
+              <Row label="Modern Standard Arabic" value={phrase.fushaArabic} arabic />
+              <Row label="MSA transliteration" value={phrase.fushaTransliteration} />
+            </div>
+
+            <div className="border-t border-line px-5 py-4 text-xs text-ink-soft">
+              Viewed {state.timesQueried} {state.timesQueried === 1 ? 'time' : 'times'} ·{' '}
+              {phrase.category}
+            </div>
           </div>
+        </motion.div>
+      </motion.div>
+  );
+}
 
-          {/* Dialects */}
-          <div className="space-y-3">
-            <h3 className="text-gray-900">Dialects</h3>
-            
-            {phrase.dialects.map((dialect, index) => (
-              <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-emerald-700">{dialect.name}</h4>
-                  <button
-                    onClick={() => handlePlayAudio(dialect.name)}
-                    className="flex items-center gap-2 px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors"
-                  >
-                    <Volume2 className="w-4 h-4" />
-                    <span className="text-sm">Play</span>
-                  </button>
-                </div>
-
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600 mb-1">Arabic Script</p>
-                    <p className="text-gray-900 text-xl" dir="rtl">{dialect.arabicScript}</p>
-                  </div>
-                  <button
-                    onClick={() => handleCopy(dialect.arabicScript, `${dialect.name} Arabic`)}
-                    className="p-2 hover:bg-gray-100 rounded transition-colors"
-                  >
-                    <Copy className="w-4 h-4 text-gray-600" />
-                  </button>
-                </div>
-                {copiedText === `${dialect.name} Arabic` && (
-                  <p className="text-emerald-600 text-sm">Copied!</p>
-                )}
-
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <p className="text-sm text-gray-600 mb-1">Transliteration</p>
-                    <p className="text-gray-700">{dialect.transliteration}</p>
-                  </div>
-                  <button
-                    onClick={() => handleCopy(dialect.transliteration, `${dialect.name} Trans`)}
-                    className="p-2 hover:bg-gray-100 rounded transition-colors"
-                  >
-                    <Copy className="w-4 h-4 text-gray-600" />
-                  </button>
-                </div>
-                {copiedText === `${dialect.name} Trans` && (
-                  <p className="text-emerald-600 text-sm">Copied!</p>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Stats */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <p className="text-sm text-gray-600">
-              Times accessed: <span className="text-gray-900">{phrase.timesQueried}</span>
-            </p>
-          </div>
-        </div>
+function Row({ label, value, arabic = false }: { label: string; value: string; arabic?: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-surface">
+      <div className="min-w-0 flex-1">
+        <p className="text-xs uppercase tracking-wide text-ink-soft">{label}</p>
+        {arabic ? (
+          <p dir="rtl" lang="ar" className="mt-0.5 truncate text-right text-lg text-ink">
+            {value}
+          </p>
+        ) : (
+          <p className="mt-0.5 truncate text-ink">{value}</p>
+        )}
       </div>
+      <CopyButton text={value} label={label} />
     </div>
   );
 }

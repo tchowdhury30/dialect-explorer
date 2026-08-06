@@ -1,11 +1,13 @@
-# World Peas — Project Guide
+# Sook Sout — Project Guide
 
 ## Quick Start
 
 ```bash
 cd web-app
 npm install
-npm run dev          # localhost:3000
+npm run dev          # port 3000 is often taken by another project
+                     # on this machine — use `npm run dev -- --port 5180`
+                     # and open 127.0.0.1, not localhost (IPv4/IPv6 clash)
 npm run typecheck    # TypeScript errors
 npm run lint         # ESLint warnings/errors
 ```
@@ -18,25 +20,70 @@ npm run lint         # ESLint warnings/errors
 - **Mobile:** Expo + React Native (simpler, older version)
 - **Audio:** Supabase Storage (jordanian/ bucket, public, 970 mp3 files)
 - **Data:** Supabase (free tier, currently ~122 MB audio)
-- **Dialects:** Egyptian (text-only for now), Levantine/Jordanian (4 native speakers with real audio)
+- **Dialects:** Egyptian (no entries yet — falls back to MSA), Levantine/Jordanian (4 native speakers with real audio)
 
 ## Project State
 
-- **Web app:** Production-ready UI with real 153-phrase Jordanian audio (Habib, Ghaina, Halad, Salim)
+- **Web app:** Redesigned UI with real 153-phrase Jordanian audio (Habib, Ghaina, Halad, Salim)
 - **Expo app:** Simpler prototype with placeholder data, not synced with web
 - **Audio:** 970 files on Supabase (1 failed during last upload: SHC_126_Track3.mp3)
-- **Next:** Polish for funding pitch demo, then add Egyptian audio
+- **Egyptian:** No dialect entries yet. Selecting Egyptian shows Modern Standard
+  Arabic with an explicit "recordings in production" notice — the app must never
+  present Jordanian wording or audio as Egyptian. Drop Egyptian `DialectEntry`
+  objects into `data/phrases.ts` and flip `audio: 'available'` in
+  `lib/dialects.ts` when the edited files land.
+- **Next:** Egyptian phrase text + audio; offline audio caching
+
+## Design Direction
+
+Editorial, chosen from a three-way comparison. Keep to it:
+
+- **Ruled, not floated.** Lists are one bordered block with hairline dividers —
+  the index of categories and the phrase entries both. Avoid per-item cards,
+  drop shadows, and stacked `space-y` lists.
+- **Small radii everywhere except pills.** `rounded-card` is 12px. Pills
+  (`components/Pill.tsx`, speaker chips, filter chips) are the only fully round
+  shapes; that contrast is deliberate, so don't round the blocks further.
+- **Arabic is the entry, English is the kicker.** Arabic gets the largest type
+  and the most vertical room; English sits above it small and muted.
+- **Per-dialect accents stay.** Two accent colours driven by `data-dialect` is a
+  liked feature, not an accident — don't collapse to a single brand colour.
+- **No emoji.** Category glyphs and flags are SVG (`components/icons/`).
 
 ## Files & Folders
 
 ```
 web-app/
   src/
-    components/    UI tabs: Explore, Search, Bookmarks, Settings, Culture, onboarding
-    data/phrases.ts    153 Jordanian phrases, 4 speakers, maps to Supabase audio
-    hooks/useAudioPlayer.ts   Speaker cycling, playback, error recovery
+    index.css       Design system: tokens, dark mode, per-dialect accents.
+                    Real Tailwind v4 build via @tailwindcss/vite — do NOT
+                    hand-edit generated CSS; new utility classes just work.
+    components/     Explore, Search, Bookmarks, Culture, Settings, onboarding,
+                    PhraseCard, PhraseDetail, SpeakerChip, DialectNotice
+    components/icons/  CategoryIcons (24px grid, 1.5 stroke, currentColor) and
+                    DialectFlag (SVG — flag emoji do not render on Windows).
+                    No emoji anywhere in app source; keep it that way.
+    components/Logo.tsx  Stacked lockup: سوق صوت in Reem Kufi over the Latin
+    lib/brand.ts       Name, Arabic wordmark, taglines — single source of truth
+  public/
+    manifest.webmanifest  PWA metadata; icons/ holds the Reem Kufi marks whose
+                    outlines were extracted from the real font via HarfBuzz —
+                    never hand-draw Arabic as SVG paths, the joins break.
+    sw.js           Hand-written service worker. navigation=network-first,
+                    /assets/*=cache-first (content-hashed), mp3=cache-first
+                    (capped). Bump VERSION to purge caches on next visit.
+    components/SpeakerAvatar.tsx  Deterministic geometric avatar per speaker name
+    data/phrases.ts    153 phrases; each carries DialectEntry[] keyed by dialectId
+    lib/dialects.ts    DIALECTS registry — single source of truth for a dialect's
+                       name, flag, region, and audio status. Add a dialect here
+                       plus a 5-line accent block in index.css.
+    lib/audio.tsx      AudioProvider: one <audio> for the app, tracks failures
+    lib/phrase.ts      entryFor / viewFor — MSA fallback when a dialect has no entry
+    lib/storage.ts     User state only (bookmarks, view counts, folders), keyed
+                       by phrase id; migrates the old whole-corpus blob once
     lib/supabase.ts    Supabase client + getAudioUrl()
-    types/index.ts     Phrase, VoiceSample, Category types
+    types/index.ts     Phrase, DialectEntry, VoiceSample, PhraseState, Category
+    components/ui/     Unused shadcn dump — nothing imports it, not bundled
   .env              VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY (add to .env.local for dev)
   package.json      eslint, typescript, vite scripts added in this session
 

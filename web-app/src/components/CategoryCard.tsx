@@ -1,62 +1,55 @@
-import { motion } from 'motion/react';
 import { Category } from '../types';
-import { ChevronRight } from 'lucide-react';
+import { CategoryIcon } from './icons/CategoryIcons';
 
-interface CategoryCardProps {
+interface CategoryCellProps {
   category: Category;
   phraseCount: number;
+  /** The last cell spans the full width and sits on one line. */
+  wide?: boolean;
   onClick: () => void;
-  currentDialect: 'Egyptian' | 'Levantine';
 }
 
-export function CategoryCard({ category, phraseCount, onClick, currentDialect }: CategoryCardProps) {
-  const dialectColors = {
-    Egyptian: {
-      border: 'hover:border-amber-500',
-      bg: 'bg-gradient-to-br from-amber-50 to-orange-50',
-      badge: 'bg-amber-100 text-amber-700',
-    },
-    Levantine: {
-      border: 'hover:border-indigo-500',
-      bg: 'bg-gradient-to-br from-indigo-50 to-purple-50',
-      badge: 'bg-indigo-100 text-indigo-700',
-    },
-  };
-
-  const colors = dialectColors[currentDialect];
-
+/**
+ * One cell of the index.
+ *
+ * Cells are divided by hairlines rather than separated by gaps, so the seven
+ * chapters read as a ruled contents page. An odd count leaves a hole in a
+ * two-column grid, so the final cell spans both columns instead.
+ */
+export function CategoryCell({ category, phraseCount, wide = false, onClick }: CategoryCellProps) {
   return (
-    <motion.button
-      whileHover={{ scale: 1.02, y: -2 }}
-      whileTap={{ scale: 0.98 }}
+    <button
+      type="button"
       onClick={onClick}
-      className={`w-full bg-white rounded-xl p-5 shadow-sm border-2 border-gray-200 ${colors.border} hover:shadow-lg transition-all text-left relative overflow-hidden group`}
+      className={`group flex border-b border-line px-4 py-5 text-center transition-colors last:border-b-0 ${
+        wide
+          ? 'col-span-2 flex-row items-center justify-center gap-3'
+          : 'min-h-[6.25rem] flex-col items-center justify-center odd:border-r odd:border-line'
+      }`}
     >
-      {/* Animated background on hover */}
-      <motion.div
-        className={`absolute inset-0 ${colors.bg} opacity-0 group-hover:opacity-100 transition-opacity`}
-        initial={{ opacity: 0 }}
+      <CategoryIcon
+        category={category.id}
+        className={`h-6 w-6 transition-colors ${
+          wide ? 'text-brand' : 'text-ink-muted group-hover:text-brand'
+        }`}
       />
-      
-      <div className="relative flex items-center gap-4">
-        <motion.div
-          whileHover={{ rotate: [0, -10, 10, -10, 0] }}
-          transition={{ duration: 0.5 }}
-          className="text-4xl"
-        >
-          {category.icon}
-        </motion.div>
-        <div className="flex-1">
-          <h3 className="text-gray-900 mb-1">{category.name}</h3>
-          <p className="text-gray-500 text-sm">{category.description}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className={`${colors.badge} px-3 py-1 rounded-full`}>
+
+      <span className={wide ? '' : 'mt-3'}>
+        <span className="block text-sm tracking-[-0.005em] text-ink transition-colors group-hover:text-brand-ink">
+          {category.name}
+        </span>
+        {!wide && (
+          <span className="mt-1 block text-[0.625rem] tabular-nums tracking-[0.14em] text-ink-soft">
             {phraseCount}
-          </div>
-          <ChevronRight className="w-5 h-5 text-gray-400 group-hover:translate-x-1 transition-transform" />
-        </div>
-      </div>
-    </motion.button>
+          </span>
+        )}
+      </span>
+
+      {wide && (
+        <span className="text-[0.625rem] tabular-nums tracking-[0.14em] text-ink-soft">
+          {phraseCount}
+        </span>
+      )}
+    </button>
   );
 }
