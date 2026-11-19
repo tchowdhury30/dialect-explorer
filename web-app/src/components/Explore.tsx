@@ -9,6 +9,7 @@ import { SectionHead } from './SectionHead';
 import { CategoryIcon } from './icons/CategoryIcons';
 import { DialectId, Phrase, PhraseState } from '../types';
 import { DIALECTS } from '../lib/dialects';
+import { voicesFor, voiceCount } from '../lib/speakers';
 import { BRAND } from '../lib/brand';
 
 interface ExploreProps {
@@ -117,7 +118,9 @@ export function Explore({
       <SectionHead
         title="Phrases"
         meta={
-          config.audio === 'available' ? `${config.variant} · Four voices` : 'Recordings pending'
+          config.audio === 'available'
+            ? `${config.variant} · ${voiceCount(voicesFor(dialect).length)}`
+            : 'Recordings pending'
         }
       />
 

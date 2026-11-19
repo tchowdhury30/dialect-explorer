@@ -28,23 +28,7 @@
       rel="stylesheet"
     />
 
-    <script>
-      // Resolve theme + dialect before first paint so there is no flash.
-      (function () {
-        try {
-          var s = JSON.parse(localStorage.getItem('appSettings') || '{}');
-          var d = s.currentDialect === 'Levantine' ? 'levantine' : 'egyptian';
-          document.documentElement.setAttribute('data-dialect', d);
-          var t = s.theme || 'system';
-          var dark =
-            t === 'dark' ||
-            (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-          document.documentElement.classList.toggle('dark', dark);
-        } catch (e) {
-          document.documentElement.setAttribute('data-dialect', 'egyptian');
-        }
-      })();
-    </script>
+    <script src="/theme-init.js"></script>
   </head>
 
   <body>

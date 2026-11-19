@@ -27,8 +27,9 @@ export const DIALECTS: Record<DialectId, DialectConfig> = {
     nativeName: 'المصرية',
     region: 'Egypt · the most widely understood dialect',
     variant: 'Cairene',
-    audio: 'pending',
-    audioNote: 'Egyptian recordings are being edited. Modern Standard Arabic is shown meanwhile.',
+    audio: 'available',
+    audioNote:
+      'No Egyptian recording for this phrase yet. Modern Standard Arabic is shown instead.',
   },
   levantine: {
     id: 'levantine',

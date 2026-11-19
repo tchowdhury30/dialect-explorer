@@ -1,5 +1,5 @@
-export type SpeakerName = 'Habib' | 'Ghaina' | 'Khalid' | 'Salim';
-export type SpeakerFolder = 'habib-ghaina' | 'halad-salim';
+export type SpeakerName = 'Habib' | 'Ghaina' | 'Khalid' | 'Salim' | 'Mario';
+export type SpeakerFolder = 'habib-ghaina' | 'halad-salim' | 'mario';
 
 /** Stable dialect keys. Also used as the `data-dialect` value on <html>. */
 export type DialectId = 'egyptian' | 'levantine';

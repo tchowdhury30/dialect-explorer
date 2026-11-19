@@ -16,7 +16,7 @@ import { DIALECTS, DIALECT_IDS } from '../lib/dialects';
 import { BRAND } from '../lib/brand';
 import { DialectFlag } from './icons/DialectFlag';
 import { SpeakerAvatar } from './SpeakerAvatar';
-import { speakersFor } from '../lib/speakers';
+import { speakersFor, voiceCount } from '../lib/speakers';
 
 interface SettingsProps {
   dialect: DialectId;
@@ -153,7 +153,7 @@ export function Settings({
                     </span>
                     <span className="text-[0.6875rem] text-ink-soft">
                       {config.audio === 'available'
-                        ? `${people.length} voices`
+                        ? voiceCount(people.filter((p) => p.nameConfirmed).length)
                         : 'recordings pending'}
                     </span>
                   </div>
