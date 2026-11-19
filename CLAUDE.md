@@ -22,7 +22,7 @@ npm run lint         # ESLint warnings/errors
   service-worker cached). Supabase is no longer used — the old project was
   paused/deleted and its host stopped resolving (Nov 2026).
 - **Dialects:** Levantine/Jordanian (Habib, Ghaina, Khalid, Salim), Egyptian/Cairene
-  (Mario, 73 phrases; the rest fall back to MSA with a notice)
+  (Mario, Karim, Omar, Ali — 129 of 148 phrases; the rest fall back to MSA with a notice)
 
 ## Project State
 
@@ -32,13 +32,22 @@ npm run lint         # ESLint warnings/errors
   `scripts/audio-sources.json` maps each app clip → raw take(s);
   `node scripts/build-audio.mjs` trims silence, loudness-normalises, joins
   multi-take clips (counting) and writes `web-app/public/audio/{jo,eg}/<speaker>/<NNN>.mp3`.
-  Commit the built mp3s. `--force` rebuilds all.
+  A source can be `{file, from, to}` to cut a span out of a long uncut session.
+  Trimming is relative to each clip's own peak (a fixed gate ate soft onsets);
+  loudness is two-pass linear. Commit the built mp3s. `--force` rebuilds all.
 - **Egyptian:** `data/egyptian.ts` — wording drafted from Whisper transcripts of
-  Mario's own takes, NOT yet native-speaker reviewed. Raw Mario sets are
-  "English prompt take, then Egyptian take(s)"; the manifest picks the Egyptian one.
-  Never present Jordanian wording or audio as Egyptian.
-- **Next:** native review of Egyptian text; Mario's portrait; Egyptian for the
-  remaining phrases (31–84 not recorded)
+  the takes themselves, NOT yet native-speaker reviewed. Each phrase lists only
+  the voices whose take says exactly the wording shown.
+  - Mario: `Audios/Mario/` — sets are "English prompt take, then Egyptian take(s)".
+  - Karim, Omar, Ali: `Audios/MULTI/Ali, Omar, Karim /` — long uncut sessions
+    (prompt, then each speaker in turn). Split on silence, transcribed per
+    utterance, speakers identified with SpeechBrain ECAPA against their recorded
+    bios (14/14 on held-out bio clips), takes hand-picked; the chosen spans are
+    the `{file, from, to}` entries in audio-sources.json. `Extra.wav` is them
+    talking about the dialect in English (Culture-tab material, unused).
+  - Never present Jordanian wording or audio as Egyptian.
+- **Next:** native review of Egyptian text; label portraits egypt1–3 (Karim/Omar/Ali?)
+  and Mario; speaker bios (recorded in `Ali, Omar, Karim Bios_.wav`)
 
 ## Design Direction
 
