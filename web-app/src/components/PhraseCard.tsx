@@ -50,7 +50,7 @@ export function PhraseCard({
           className="flex-1 text-left after:absolute after:inset-0 after:content-['']"
         >
           <span className="block text-[0.9375rem] leading-snug tracking-[-0.008em] text-ink-muted">
-            {phrase.english}
+            {view.english}
           </span>
         </button>
 

@@ -25,6 +25,9 @@ export interface DialectEntry {
   dialectId: DialectId;
   /** Regional name shown to the user, e.g. "Jordanian". */
   name: string;
+  /** What this dialect's line actually means, when it was localised or
+      reworded and no longer matches Phrase.english. */
+  english?: string;
   arabicScript: string;
   transliteration: string;
   samples: VoiceSample[];

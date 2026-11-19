@@ -89,7 +89,7 @@ export function PhraseDetail({
         <motion.div
           role="dialog"
           aria-modal="true"
-          aria-label={`${phrase.english} — phrase details`}
+          aria-label={`${view.english} — phrase details`}
           initial={{ y: '4%', opacity: 0.6 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: '4%', opacity: 0 }}
@@ -131,7 +131,7 @@ export function PhraseDetail({
           <div className="scroll-clean flex-1 overflow-y-auto">
             {/* Hero: the phrase itself, sized to be readable at arm's length. */}
             <div className="border-b border-line bg-brand-softer px-6 py-7">
-              <p className="text-sm text-ink-muted">{phrase.english}</p>
+              <p className="text-sm text-ink-muted">{view.english}</p>
               <p
                 dir="rtl"
                 lang="ar"
@@ -168,7 +168,10 @@ export function PhraseDetail({
             </div>
 
             <div className="space-y-1 p-5">
-              <Row label="English" value={phrase.english} />
+              <Row label="English" value={view.english} />
+              {view.isLocalised && (
+                <Row label="Original phrase" value={phrase.english} />
+              )}
               {!view.isFallback && (
                 <>
                   <Row
