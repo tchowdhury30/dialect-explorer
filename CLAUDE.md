@@ -37,7 +37,9 @@ npm run lint         # ESLint warnings/errors
   loudness is two-pass linear; each clip gets short fades plus 180 ms of
   silence before and 300 ms after (many raw takes start/stop exactly on a word,
   and phones swallow the first moment of playback). A clip rebuilds when its
-  sources or the pipeline change (hashes in `scripts/audio-built.json`).
+  sources or the pipeline change (hashes in `scripts/audio-built.json`); the
+  app appends each hash to the clip URL (`src/data/audio-versions.json`,
+  `clipUrl`) so a rebuilt clip is never served stale from a phone cache.
   Commit the built mp3s and audio-built.json. `--force` rebuilds all.
 - **Egyptian:** `data/egyptian.ts` — wording drafted from Whisper transcripts of
   the takes themselves, NOT yet native-speaker reviewed. Each phrase lists only
