@@ -19,6 +19,29 @@ interface AudioContextValue {
   failedIds: ReadonlySet<string>;
   play: (id: string, url: string) => void;
   stop: () => void;
+  /** Playback speed. Pitch is preserved, so slow speech still sounds natural. */
+  rate: PlaybackRate;
+  setRate: (rate: PlaybackRate) => void;
+}
+
+export const RATES = [1, 0.75, 0.5] as const;
+export type PlaybackRate = (typeof RATES)[number];
+const RATE_KEY = 'playbackRate';
+
+function loadRate(): PlaybackRate {
+  try {
+    const n = Number(localStorage.getItem(RATE_KEY));
+    return (RATES as readonly number[]).includes(n) ? (n as PlaybackRate) : 1;
+  } catch {
+    return 1;
+  }
+}
+
+function applyRate(el: HTMLAudioElement, rate: number) {
+  el.playbackRate = rate;
+  el.preservesPitch = true;
+  // Older Safari only knows the prefixed name.
+  (el as HTMLAudioElement & { webkitPreservesPitch?: boolean }).webkitPreservesPitch = true;
 }
 
 const AudioCtx = createContext<AudioContextValue | null>(null);
@@ -37,6 +60,19 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [status, setStatus] = useState<AudioStatus>('idle');
   const [failedIds, setFailedIds] = useState<Set<string>>(new Set());
+  const [rate, setRateState] = useState<PlaybackRate>(loadRate);
+  const rateRef = useRef<PlaybackRate>(rate);
+
+  const setRate = useCallback((next: PlaybackRate) => {
+    rateRef.current = next;
+    setRateState(next);
+    if (elementRef.current) applyRate(elementRef.current, next);
+    try {
+      localStorage.setItem(RATE_KEY, String(next));
+    } catch {
+      // not remembered this session; still applies
+    }
+  }, []);
 
   const teardown = useCallback(() => {
     const el = elementRef.current;
@@ -67,6 +103,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
       const el = new Audio(url);
       el.preload = 'auto';
+      applyRate(el, rateRef.current);
       elementRef.current = el;
       activeIdRef.current = id;
       setActiveId(id);
@@ -103,8 +140,8 @@ export function AudioProvider({ children }: { children: ReactNode }) {
   useEffect(() => teardown, [teardown]);
 
   const value = useMemo(
-    () => ({ activeId, status, failedIds, play, stop }),
-    [activeId, status, failedIds, play, stop]
+    () => ({ activeId, status, failedIds, play, stop, rate, setRate }),
+    [activeId, status, failedIds, play, stop, rate, setRate]
   );
 
   return <AudioCtx.Provider value={value}>{children}</AudioCtx.Provider>;

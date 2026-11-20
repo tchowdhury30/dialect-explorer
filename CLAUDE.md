@@ -53,22 +53,38 @@ npm run lint         # ESLint warnings/errors
     talking about the dialect in English (Culture-tab material, unused).
   - Never present Jordanian wording or audio as Egyptian.
 - **Next:** native review of Egyptian text; Mario's portrait; speaker bios (recorded in `Ali, Omar, Karim Bios_.wav`)
+- **Contact form:** `components/Contact.tsx` posts to Netlify Forms (static
+  form named `contact` in index.html). Form detection must be enabled in the
+  Netlify dashboard; submissions show under Forms there.
+- **Playback speed:** Normal / Slow (0.75) / Slower (0.5), pitch preserved,
+  remembered per device (`lib/audio.tsx`).
 
 ## Design Direction
 
-Editorial, chosen from a three-way comparison. Keep to it:
+Cute and animated: "the souk at dusk, with Bisbis". Chosen by the owner in
+Nov 2026 over the earlier editorial look. Keep to it:
 
-- **Ruled, not floated.** Lists are one bordered block with hairline dividers —
-  the index of categories and the phrase entries both. Avoid per-item cards,
-  drop shadows, and stacked `space-y` lists.
-- **Small radii everywhere except pills.** `rounded-card` is 12px. Pills
-  (`components/Pill.tsx`, speaker chips, filter chips) are the only fully round
-  shapes; that contrast is deliberate, so don't round the blocks further.
-- **Arabic is the entry, English is the kicker.** Arabic gets the largest type
-  and the most vertical room; English sits above it small and muted.
-- **Per-dialect accents stay.** Two accent colours driven by `data-dialect` is a
-  liked feature, not an accident — don't collapse to a single brand colour.
-- **No emoji.** Category glyphs and flags are SVG (`components/icons/`).
+- **Bisbis (بسبس), the street-cat guide** (`components/art/Bisbis.tsx`). She
+  sits on the awning on Home, peeks over sheets and category pages, naps on an
+  empty Saved tab, and talks along (`talking`) whenever audio plays.
+- **Dusk souk** (`art/DuskHero.tsx`, `art/Souk.tsx`): swaying lanterns,
+  twinkling stars, stall skyline. The sky colours are per-dialect variables
+  (`--sky-1..3` in index.css): Egyptian dusk orange, Jordanian evening teal.
+- **Every category is its own place**, with colours in
+  `lib/categoryThemes.ts` (applied as `--cat*` CSS vars via `themeVars()`) and
+  an animated scene in `art/CategoryArt.tsx`: the ahwa, a food cart, the
+  pyramids (Petra for Jordanian), a taxi at dusk (white in Cairo, yellow in
+  Amman), a train, a market scale, a pharmacy. Cards, voice chips and the
+  phrase sheet pick up the category's colours.
+- **Soft, round, tactile**: `rounded-card` (22px), solid "sticker" drop
+  shadows (`shadow-card`), Fredoka for display, Nunito for body, Noto Naskh
+  for Arabic, Reem Kufi for the wordmark.
+- **Motion everywhere, but CSS-first**: keyframes live in index.css
+  (`anim-*`), and the reduced-motion rule turns them all off.
+- **Arabic is still the biggest thing on every card.**
+- **No emoji.** All art is inline SVG.
+- Levantine is shown as **Jordanian** everywhere (`DIALECTS[id].name`); the
+  stored settings value stays 'Levantine' for old saves.
 
 ## Files & Folders
 

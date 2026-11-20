@@ -15,7 +15,7 @@ export function DialectNotice({ dialect }: { dialect: DialectId }) {
     <div className="flex items-start gap-2.5 rounded-xl border border-brand-line bg-brand-softer px-3.5 py-3">
       <Info className="mt-0.5 h-4 w-4 shrink-0 text-brand" aria-hidden="true" />
       <p className="text-xs leading-relaxed text-ink-muted">
-        <span className="font-semibold text-ink">{config.label} audio is in production.</span>{' '}
+        <span className="font-semibold text-ink">{config.name} audio is in production.</span>{' '}
         {config.audioNote}
       </p>
     </div>

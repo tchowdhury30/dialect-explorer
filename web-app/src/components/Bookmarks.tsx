@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
-import { Bookmark, FolderPlus, Plus, X } from 'lucide-react';
+import { FolderPlus, Plus, X } from 'lucide-react';
+import { EmptyState } from './ListHead';
 import { PhraseCard, PhraseList } from './PhraseCard';
 import { DialectId, Folder, Phrase, PhraseState } from '../types';
 
@@ -55,28 +56,26 @@ export function Bookmarks({
 
   return (
     <div className="flex h-full flex-col">
-      <header className="px-[22px] pb-3 pt-[26px]">
+      <header className="px-4 pb-2 pt-5">
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-[0.625rem] font-semibold uppercase tracking-[0.24em] text-ink">
-            Saved
-          </h2>
-          <span className="text-[0.59375rem] uppercase tabular-nums tracking-[0.12em] text-ink-soft">
+          <h2 className="font-display text-2xl font-semibold text-ink">Saved</h2>
+          <span className="text-xs font-semibold text-ink-soft">
             {saved.length} {saved.length === 1 ? 'phrase' : 'phrases'}
           </span>
         </div>
 
         {saved.length > 0 && (
-          <div className="scroll-clean -mx-[22px] mt-3.5 flex gap-1.5 overflow-x-auto px-[22px] pb-1">
+          <div className="scroll-clean -mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-2">
             {filters.map((folder) => (
               <button
                 key={folder.id}
                 type="button"
                 onClick={() => setActiveFolder(folder.id)}
                 aria-pressed={activeFolder === folder.id}
-                className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                className={`shrink-0 rounded-full px-3.5 py-1.5 font-display text-sm font-semibold transition-colors ${
                   activeFolder === folder.id
-                    ? 'border-brand bg-brand text-on-brand'
-                    : 'border-line bg-card text-ink-muted hover:border-brand-line hover:text-ink'
+                    ? 'bg-brand text-on-brand shadow-[0_2px_0_rgba(0,0,0,0.18)]'
+                    : 'bg-card text-ink-muted shadow-card hover:text-ink'
                 }`}
               >
                 {folder.name}
@@ -136,18 +135,13 @@ export function Bookmarks({
 
       <div className="scroll-clean flex-1 overflow-y-auto">
         {saved.length === 0 ? (
-          <div className="flex h-full flex-col items-center justify-center px-10 pb-16 text-center">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-card border border-line">
-              <Bookmark className="h-5 w-5 text-ink-soft" aria-hidden="true" />
-            </div>
-            <h3 className="text-[0.625rem] font-semibold uppercase tracking-[0.24em] text-ink">Nothing saved yet</h3>
-            <p className="mt-2.5 max-w-xs text-[0.8125rem] italic leading-relaxed text-ink-soft">
-              Tap the bookmark on any phrase to keep it here — handy for the ones you'll need
-              on the day.
-            </p>
-          </div>
+          <EmptyState
+            pose="nap"
+            title="Nothing saved yet"
+            body="Tap the heart on any phrase to keep it here, handy for the ones you'll need on the day."
+          />
         ) : visible.length === 0 ? (
-          <p className="py-12 text-center text-[0.8125rem] italic text-ink-soft">
+          <p className="py-12 text-center text-sm font-semibold text-ink-soft">
             Nothing in this folder yet.
           </p>
         ) : (
@@ -162,13 +156,14 @@ export function Bookmarks({
                   state={getState(phrase.id)}
                   onOpen={() => onOpenPhrase(phrase)}
                   onToggleBookmark={() => onToggleBookmark(phrase.id)}
+                  showCategory
                   footer={
                     folders.length > 0 ? (
                       <select
                         value={getState(phrase.id).folderId ?? ''}
                         onChange={(e) => onAssignFolder(phrase.id, e.target.value || undefined)}
                         aria-label={`Folder for “${phrase.english}”`}
-                        className="rounded-full border border-line bg-card px-2.5 py-1 text-xs text-ink-muted focus:border-brand focus:outline-none"
+                        className="rounded-full bg-cat-soft px-3 py-1 font-display text-xs font-semibold text-cat-ink focus:outline-none focus:ring-2 focus:ring-cat"
                       >
                         <option value="">Unfiled</option>
                         {folders.map((folder) => (

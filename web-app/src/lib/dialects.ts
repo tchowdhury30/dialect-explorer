@@ -2,8 +2,12 @@ import { DialectId, DialectLabel } from '../types';
 
 export interface DialectConfig {
   id: DialectId;
-  /** Value persisted in settings and shown in copy. */
+  /** Value persisted in settings. Internal: 'Levantine' is kept for old saves. */
   label: DialectLabel;
+  /** What users see. Our Levantine recordings are all Jordanian, so say so. */
+  name: string;
+  /** Hello in this dialect, for Bisbis's speech bubble. */
+  greeting: { ar: string; tr: string };
   /** Endonym, shown under the label. */
   nativeName: string;
   /** Where the dialect is spoken — one line, for onboarding and settings. */
@@ -26,8 +30,10 @@ export const DIALECTS: Record<DialectId, DialectConfig> = {
   egyptian: {
     id: 'egyptian',
     label: 'Egyptian',
+    name: 'Egyptian',
+    greeting: { ar: 'أهلاً! إزيك؟', tr: 'ahlan! izzayyak?' },
     nativeName: 'المصرية',
-    region: 'Egypt · the most widely understood dialect',
+    region: 'Egypt · recorded in Cairo',
     variant: 'Cairene',
     recordedIn: 'Cairo',
     audio: 'available',
@@ -37,8 +43,10 @@ export const DIALECTS: Record<DialectId, DialectConfig> = {
   levantine: {
     id: 'levantine',
     label: 'Levantine',
-    nativeName: 'الشامية',
-    region: 'Jordan, Palestine, Syria, Lebanon',
+    name: 'Jordanian',
+    greeting: { ar: 'مرحبا! كيفك؟', tr: 'marhaba! kifak?' },
+    nativeName: 'الأردنية',
+    region: 'Jordan · recorded in Amman',
     variant: 'Jordanian',
     recordedIn: 'Amman',
     audio: 'available',
