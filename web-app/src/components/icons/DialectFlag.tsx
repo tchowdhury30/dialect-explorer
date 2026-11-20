@@ -20,7 +20,7 @@ const BAND = 16 / 3;
 
 export function DialectFlag({ dialect, size = 20, className = '' }: FlagProps) {
   const clipId = useId();
-  const label = `${DIALECTS[dialect].label} flag`;
+  const label = `${DIALECTS[dialect].name} flag`;
 
   return (
     <svg

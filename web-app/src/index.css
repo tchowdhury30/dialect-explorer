@@ -16,37 +16,42 @@
 :root {
   color-scheme: light;
 
-  --surface: oklch(0.977 0.004 85);
-  --surface-raised: oklch(1 0 0);
-  --card: oklch(1 0 0);
-  --line: oklch(0.918 0.005 85);
-  --line-strong: oklch(0.85 0.006 85);
+  /* Warm cream paper under a dusk-lit souk. */
+  --surface: #fff6e8;
+  --surface-raised: #fffaf2;
+  --card: #ffffff;
+  --line: #f1e3d0;
+  --line-strong: #e4cfb4;
+  /* Solid "sticker" drop under raised things — the cute, tactile edge. */
+  --pop: #f0d9bf;
 
-  --ink: oklch(0.24 0.012 60);
-  --ink-muted: oklch(0.52 0.012 60);
-  --ink-soft: oklch(0.66 0.01 60);
+  --ink: #3a2418;
+  --ink-muted: #7a6458;
+  --ink-soft: #a08c7c;
 
-  --on-brand: oklch(1 0 0);
+  --on-brand: #ffffff;
 
-  --shadow-color: 30 20% 40%;
+  --shadow-color: 25 45% 35%;
 }
 
 .dark {
   color-scheme: dark;
 
-  --surface: oklch(0.185 0.008 75);
-  --surface-raised: oklch(0.225 0.009 75);
-  --card: oklch(0.235 0.01 75);
-  --line: oklch(0.315 0.011 75);
-  --line-strong: oklch(0.4 0.012 75);
+  /* The souk after dark. */
+  --surface: #1d1a2c;
+  --surface-raised: #242036;
+  --card: #2b2640;
+  --line: #3a3452;
+  --line-strong: #4b4466;
+  --pop: #15121f;
 
-  --ink: oklch(0.965 0.005 85);
-  --ink-muted: oklch(0.735 0.012 85);
-  --ink-soft: oklch(0.585 0.012 85);
+  --ink: #fff3e6;
+  --ink-muted: #cbbdb0;
+  --ink-soft: #978aa0;
 
-  --on-brand: oklch(0.19 0.02 70);
+  --on-brand: #1d1a2c;
 
-  --shadow-color: 30 30% 4%;
+  --shadow-color: 250 40% 3%;
 }
 
 /* Derived brand tints — recomputed automatically per dialect and per scheme. */
@@ -76,22 +81,26 @@
   --color-brand-line: var(--brand-line);
   --color-brand-ink: var(--brand-ink);
   --color-on-brand: var(--on-brand);
+  --color-pop: var(--pop);
+  --color-cat: var(--cat, var(--brand));
+  --color-cat-soft: var(--cat-soft, var(--brand-soft));
+  --color-cat-ink: var(--cat-ink, var(--brand-ink));
 }
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: "Nunito", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  /* Headings, buttons, labels — round and friendly. */
+  --font-display: "Fredoka", "Nunito", ui-sans-serif, system-ui, sans-serif;
   /* Body Arabic — phrase text, where readability beats character. */
   --font-arabic: "Noto Naskh Arabic", "SF Arabic", "Geeza Pro", "Times New Roman", serif;
   /* Display Arabic — the wordmark only. Geometric Kufi, not a reading face. */
   --font-kufi: "Reem Kufi", "SF Arabic", "Geeza Pro", sans-serif;
 
-  /* Editorial direction: blocks are ruled, not floated. Corners are softened
-     just enough to feel considered — not enough to read as a bubbly card UI.
-     Pills stay fully round; that contrast is the point. */
-  --radius-card: 0.75rem;
+  /* Cute direction: soft, round, tactile. */
+  --radius-card: 1.375rem;
 
-  --shadow-card: 0 1px 2px hsl(var(--shadow-color) / 0.06),
-    0 4px 16px -6px hsl(var(--shadow-color) / 0.1);
+  --shadow-card: 0 3px 0 var(--pop);
+  --shadow-float: 0 10px 24px -12px hsl(var(--shadow-color) / 0.45);
   --shadow-lift: 0 2px 4px hsl(var(--shadow-color) / 0.07),
     0 12px 32px -10px hsl(var(--shadow-color) / 0.18);
   --shadow-sheet: 0 -8px 40px -12px hsl(var(--shadow-color) / 0.3);
@@ -132,6 +141,10 @@
 
   button {
     cursor: pointer;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
   }
 
   button:disabled {
@@ -225,22 +238,131 @@
    To add a dialect: add a pair of blocks here and an entry in lib/dialects.ts.
 --------------------------------------------------------------------------- */
 
+/* Egyptian: Cairo at dusk — terracotta lanterns over a violet sky. */
 [data-dialect="egyptian"] {
-  --brand: oklch(0.58 0.13 62);
-  --brand-2: oklch(0.56 0.16 42);
+  --brand: #d9663f;
+  --brand-2: #f2b33d;
+  --sky-1: #2b2350;
+  --sky-2: #6b3f6e;
+  --sky-3: #e2785a;
 }
 
 .dark[data-dialect="egyptian"] {
-  --brand: oklch(0.79 0.14 74);
-  --brand-2: oklch(0.75 0.15 52);
+  --brand: #f08a62;
+  --brand-2: #f6c45a;
+  --sky-1: #15122a;
+  --sky-2: #3b2546;
+  --sky-3: #8a4058;
 }
 
+/* Jordanian: Amman evening — teal lanterns, cooler sky. */
 [data-dialect="levantine"] {
-  --brand: oklch(0.54 0.13 232);
-  --brand-2: oklch(0.52 0.14 268);
+  --brand: #23897d;
+  --brand-2: #e0a63a;
+  --sky-1: #1f2b4f;
+  --sky-2: #3f5f7a;
+  --sky-3: #7ec4a8;
 }
 
 .dark[data-dialect="levantine"] {
-  --brand: oklch(0.76 0.12 226);
-  --brand-2: oklch(0.74 0.13 274);
+  --brand: #4cc3b2;
+  --brand-2: #f2c25e;
+  --sky-1: #10162b;
+  --sky-2: #223a50;
+  --sky-3: #2f6b62;
+}
+
+/* ---------------------------------------------------------------------------
+   Motion library. Everything here is decorative and switches off under
+   prefers-reduced-motion (rule above).
+--------------------------------------------------------------------------- */
+
+@keyframes sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+@keyframes twinkle { 50% { opacity: 0.2; transform: scale(0.6); } }
+@keyframes glow { to { opacity: 0.55; } }
+@keyframes blink { 0%, 92%, 100% { transform: scaleY(0); } 95% { transform: scaleY(1); } }
+@keyframes twitch { 0%, 88%, 100% { transform: rotate(0); } 91% { transform: rotate(-12deg); } 94% { transform: rotate(4deg); } }
+@keyframes tail { 50% { transform: rotate(14deg); } }
+@keyframes talk { from { transform: scaleY(0.4); } to { transform: scaleY(1.7); } }
+@keyframes paw { 0%, 70%, 100% { transform: rotate(0); } 78% { transform: rotate(-18deg); } 86% { transform: rotate(10deg); } }
+@keyframes float-y { 50% { transform: translateY(-6px); } }
+@keyframes wobble { 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+@keyframes hop { 40% { transform: translateY(-6px); } }
+@keyframes ring { from { opacity: 0.8; transform: scale(1); } to { opacity: 0; transform: scale(1.22); } }
+@keyframes burst { from { transform: translate(0, 0) scale(1); opacity: 1; } to { transform: translate(var(--x), var(--y)) scale(0.2); opacity: 0; } }
+@keyframes steam { 0% { transform: translateY(0) scaleX(1); opacity: 0; } 30% { opacity: 0.8; } 100% { transform: translateY(-14px) scaleX(1.4); opacity: 0; } }
+@keyframes drive { from { transform: translateX(-120px); } to { transform: translateX(480px); } }
+@keyframes walk { from { transform: translateX(380px); } to { transform: translateX(-120px); } }
+@keyframes tip { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
+@keyframes pulse-soft { 50% { transform: scale(1.12); } }
+@keyframes bubble-in { from { transform: scale(0); } }
+@keyframes rise { from { transform: translateY(10px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(-40px); opacity: 0; } }
+
+.anim-sway { transform-origin: 50% 0; animation: sway 3.4s ease-in-out infinite; }
+.anim-twinkle { animation: twinkle 2.4s ease-in-out infinite; }
+.anim-glow { animation: glow 1.8s ease-in-out infinite alternate; }
+.anim-blink { transform-box: fill-box; transform-origin: center; animation: blink 4.2s infinite; }
+.anim-twitch { transform-box: fill-box; transform-origin: 50% 100%; animation: twitch 5s infinite; }
+.anim-tail { transform-box: fill-box; transform-origin: 0% 100%; animation: tail 1.6s ease-in-out infinite; }
+.anim-paw { transform-box: fill-box; transform-origin: 50% 100%; animation: paw 2.6s ease-in-out 1s infinite; }
+.anim-float { animation: float-y 4s ease-in-out infinite; }
+.anim-steam { transform-box: fill-box; transform-origin: 50% 100%; animation: steam 2.2s ease-out infinite; }
+.anim-drive { animation: drive 7s linear infinite; }
+.anim-walk { animation: walk 22s linear infinite; }
+.anim-tip { transform-box: fill-box; transform-origin: 50% 0; animation: tip 3s ease-in-out infinite; }
+.anim-pulse { transform-box: fill-box; transform-origin: center; animation: pulse-soft 1.8s ease-in-out infinite; }
+.anim-rise { animation: rise 4s ease-out infinite; }
+.anim-bubble { transform-origin: 100% 100%; animation: bubble-in 0.6s cubic-bezier(0.2, 1.6, 0.4, 1) 0.6s both; }
+.cat-mouth { transform-box: fill-box; transform-origin: 50% 0; }
+.is-talking .cat-mouth { animation: talk 0.18s ease-in-out infinite alternate; }
+
+/* Tactile press: lifts on hover, wobbles its sticker, squashes on tap. */
+.press { transition: transform 0.25s cubic-bezier(0.2, 1.6, 0.4, 1), box-shadow 0.15s; }
+.press:hover { transform: translateY(-2px) rotate(-1deg); }
+.press:active { transform: translateY(2px) scale(0.98); box-shadow: 0 1px 0 var(--pop); }
+.press:hover .sticker { animation: wobble 0.5s ease-in-out; }
+
+.playing-ring::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 999px;
+  border: 2px solid var(--cat, var(--brand));
+  animation: ring 1s ease-out infinite;
+  pointer-events: none;
+}
+
+.burst-dot {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  pointer-events: none;
+  animation: burst 0.7s ease-out forwards;
+}
+
+.eq-bar-lg {
+  display: block;
+  width: 3px;
+  border-radius: 2px;
+  height: 4px;
+  background: currentColor;
+  animation: equalize-lg 0.5s ease-in-out infinite alternate;
+}
+.eq-bar-lg:nth-child(2) { animation-delay: 0.12s; }
+.eq-bar-lg:nth-child(3) { animation-delay: 0.24s; }
+.eq-bar-lg:nth-child(4) { animation-delay: 0.36s; }
+@keyframes equalize-lg { from { height: 3px; } to { height: 13px; } }
+
+/* Category themes: components set --cat-l/-d etc. via themeVars(); this
+   resolves them for the current colour scheme. */
+[style*="--cat-l"] {
+  --cat: var(--cat-l);
+  --cat-soft: var(--cat-soft-l);
+  --cat-ink: var(--cat-ink-l);
+}
+.dark [style*="--cat-l"] {
+  --cat: var(--cat-d);
+  --cat-soft: var(--cat-soft-d);
+  --cat-ink: var(--cat-d);
 }

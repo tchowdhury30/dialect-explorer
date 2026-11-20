@@ -1,13 +1,12 @@
 import { VoiceSample } from '../types';
 import { useAudio } from '../lib/audio';
+import { photoFor } from '../lib/speakers';
+import { SpeakerAvatar } from './SpeakerAvatar';
 
 /**
- * A voice on the entry's speaker line.
- *
- * Set as text separated by hairline rules rather than as buttons — the line
- * reads as a credit line in a reference book. While a voice is sounding its
- * play mark is replaced by a moving equalizer, so playback state does not rest
- * on colour alone.
+ * A speaker chip: their face and name. Tap to hear them say the phrase. While
+ * it sounds, the chip fills with the category colour, a ring pulses out from
+ * it and an equalizer dances — so "who is talking" never rests on colour alone.
  */
 export function VoiceButton({ sample, phraseId }: { sample: VoiceSample; phraseId: string }) {
   const { activeId, status, failedIds, play } = useAudio();
@@ -31,41 +30,28 @@ export function VoiceButton({ sample, phraseId }: { sample: VoiceSample; phraseI
       disabled={hasFailed}
       aria-label={label}
       aria-pressed={isPlaying}
-      className={`relative z-10 inline-flex items-center gap-[7px] px-[13px] py-0.5 text-[0.71875rem] tracking-[0.03em] transition-colors first:pl-0 [&+&]:border-l [&+&]:border-line ${
+      className={`relative z-10 inline-flex items-center gap-2 rounded-full py-1 pl-1 pr-3.5 font-display text-sm font-semibold transition-[background,transform,color] duration-200 active:scale-95 ${
         hasFailed
-          ? 'text-ink-soft line-through decoration-line'
+          ? 'bg-surface text-ink-soft line-through'
           : isActive
-            ? 'font-medium text-brand-ink'
-            : 'text-ink-muted hover:text-ink'
+            ? 'playing-ring bg-cat text-white'
+            : 'bg-cat-soft text-cat-ink hover:-translate-y-0.5'
       }`}
     >
+      <SpeakerAvatar name={sample.speaker} photo={photoFor(sample.speaker)} size={30} />
+      {sample.speaker}
       {isPlaying || isLoading ? (
-        <span
-          aria-hidden="true"
-          className={`inline-flex h-2.5 w-2.5 items-end gap-[1.5px] text-brand ${
-            isLoading ? 'opacity-50' : ''
-          }`}
-        >
-          <i className="eq-bar" />
-          <i className="eq-bar" />
-          <i className="eq-bar" />
+        <span aria-hidden="true" className={`inline-flex h-3.5 items-end gap-[2px] ${isLoading ? 'opacity-50' : ''}`}>
+          <i className="eq-bar-lg" />
+          <i className="eq-bar-lg" />
+          <i className="eq-bar-lg" />
+          <i className="eq-bar-lg" />
         </span>
       ) : (
-        <svg
-          width="10"
-          height="10"
-          viewBox="0 0 12 12"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-          aria-hidden="true"
-          className={isActive ? 'text-brand' : 'text-ink-soft'}
-        >
-          <path d="M3 1.8 10 6l-7 4.2V1.8Z" />
+        <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true" className="opacity-70">
+          <path d="M3 1.5 10.5 6 3 10.5z" fill="currentColor" />
         </svg>
       )}
-      {sample.speaker}
     </button>
   );
 }

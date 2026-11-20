@@ -4,6 +4,8 @@ import { ArrowRight, Check, Clock, Mic } from 'lucide-react';
 import { DialectId } from '../types';
 import { DIALECTS, DIALECT_IDS } from '../lib/dialects';
 import { Logo } from './Logo';
+import { Bisbis } from './art/Bisbis';
+import { Lantern, LanternString, Stars } from './art/Souk';
 import { DialectFlag } from './icons/DialectFlag';
 
 interface OnboardingDialogProps {
@@ -21,21 +23,36 @@ export function OnboardingDialog({ onSelectDialect, onPreviewDialect }: Onboardi
   };
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-surface p-5">
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
-        className="w-full max-w-md"
+    <div className="flex min-h-dvh flex-col bg-surface">
+      <div
+        className="safe-top relative h-72 shrink-0 overflow-hidden"
+        style={{ background: 'linear-gradient(var(--sky-1) 0%, var(--sky-2) 55%, var(--sky-3) 100%)' }}
       >
-        <div className="mb-8 flex flex-col items-center text-center">
-          <Logo size="lg" />
-          <p lang="ar" dir="rtl" className="mt-7 text-2xl text-ink-muted">
-            أهلاً وسهلاً
-          </p>
-          <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
-            Everyday Arabic for travellers — the way people actually speak it, not the textbook
-            version.
+        <Stars />
+        <LanternString />
+        <Lantern color="terracotta" style={{ left: '14%', top: 18 }} />
+        <Lantern color="teal" style={{ left: '40%', top: 30, animationDelay: '-1s' }} />
+        <Lantern color="saffron" style={{ left: '64%', top: 28, animationDuration: '3s' }} />
+        <Lantern color="rose" style={{ left: '86%', top: 16, animationDelay: '-2s' }} />
+        <div className="anim-bubble absolute bottom-32 left-1/2 ml-[-9.5rem] max-w-[11rem] rounded-[18px_18px_18px_4px] bg-white px-3.5 py-2 font-display text-sm font-medium text-ink shadow-float" style={{ transformOrigin: '0 100%' }}>
+          <span lang="ar" dir="rtl" className="block text-lg font-bold text-brand">
+            أهلاً وسهلاً!
+          </span>
+          I'm Bisbis. Which Arabic are you learning?
+        </div>
+        <Bisbis pose="sit" className="absolute bottom-0 left-1/2 w-36 translate-x-[10%] translate-y-6" />
+      </div>
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 26, delay: 0.2 }}
+        className="relative -mt-6 w-full flex-1 rounded-t-[1.75rem] bg-surface px-5 pb-8 pt-6 sm:mx-auto sm:max-w-md"
+      >
+        <div className="mb-6 flex flex-col items-center text-center">
+          <Logo size="md" />
+          <p className="mt-3 text-sm leading-relaxed text-ink-muted">
+            Everyday Arabic for travellers, the way people actually speak it, recorded by real
+            voices in Cairo and Amman.
           </p>
         </div>
 
@@ -52,17 +69,15 @@ export function OnboardingDialog({ onSelectDialect, onPreviewDialect }: Onboardi
                 type="button"
                 onClick={() => choose(id)}
                 aria-pressed={isSelected}
-                className={`flex w-full items-start gap-4 rounded-2xl border p-4 text-left transition-all ${
-                  isSelected
-                    ? 'border-brand bg-brand-softer shadow-lift'
-                    : 'border-line bg-card shadow-card hover:border-brand-line'
+                className={`press flex w-full items-start gap-4 rounded-card p-4 text-left shadow-card ${
+                  isSelected ? 'bg-brand-soft ring-2 ring-brand' : 'bg-card'
                 }`}
               >
                 <DialectFlag dialect={id} size={34} className="mt-0.5" />
 
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline gap-2">
-                    <span className="font-semibold text-ink">{config.label} Arabic</span>
+                    <span className="font-display text-lg font-semibold text-ink">{config.name} Arabic</span>
                     <span lang="ar" dir="rtl" className="text-sm text-ink-soft">
                       {config.nativeName}
                     </span>
@@ -103,9 +118,9 @@ export function OnboardingDialog({ onSelectDialect, onPreviewDialect }: Onboardi
           type="button"
           onClick={() => selected && onSelectDialect(selected)}
           disabled={!selected}
-          className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-3.5 font-semibold text-on-brand transition-opacity disabled:cursor-not-allowed disabled:opacity-35"
+          className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-brand py-3.5 font-display text-lg font-semibold text-on-brand shadow-[0_3px_0_rgba(0,0,0,0.2)] transition active:translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-35"
         >
-          Start learning
+          Yalla, let's go
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </button>
 

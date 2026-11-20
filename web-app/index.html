@@ -7,10 +7,10 @@
     <title>Sook Sout — Arabic phrasebook for travellers</title>
     <meta
       name="description"
-      content="Learn everyday Egyptian and Levantine Arabic from native speakers. Real recordings, real dialect, built for travellers."
+      content="Learn everyday Egyptian and Jordanian Arabic from native speakers. Real recordings, real dialect, built for travellers."
     />
-    <meta name="theme-color" content="#f9f7f3" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1c1a17" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#fff6e8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1d1a2c" media="(prefers-color-scheme: dark)" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
 
 
@@ -24,7 +24,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@600;700&display=swap"
       rel="stylesheet"
     />
 
@@ -33,6 +33,14 @@
 
   <body>
     <div id="root"></div>
+    <!-- Netlify Forms detects this at deploy; the app submits to it with fetch
+         (components/Contact.tsx). Never shown. -->
+    <form name="contact" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input name="kind" />
+      <textarea name="message"></textarea>
+      <input name="contact" />
+      <input name="bot-field" />
+    </form>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

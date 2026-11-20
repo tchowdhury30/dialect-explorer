@@ -1,28 +1,28 @@
 import { ReactNode } from 'react';
-import { Bookmark } from 'lucide-react';
+import { motion } from 'motion/react';
 import { DialectId, Phrase, PhraseState } from '../types';
 import { viewFor } from '../lib/phrase';
+import { themeVars } from '../lib/categoryThemes';
 import { VoiceButton } from './VoiceButton';
-import { Pill } from './Pill';
+import { HeartButton } from './HeartButton';
+import { CategorySticker } from './art/CategoryArt';
 
 interface PhraseCardProps {
   phrase: Phrase;
   dialect: DialectId;
   state: PhraseState;
-  /** Position in the current list, printed as the entry number. */
+  /** Position in the current list; staggers the pop-in. */
   index: number;
   onOpen: () => void;
   onToggleBookmark: () => void;
   footer?: ReactNode;
+  /** Show the category sticker (lists that mix categories, like Search). */
+  showCategory?: boolean;
 }
 
 /**
- * An entry in the phrasebook.
- *
- * Typographic hierarchy carries this, not boxes: a numbered kicker line with
- * the English set small and muted, the Arabic given the largest size and the
- * most leading, and the transliteration as an italic caption beneath it. The
- * voices sit below a hairline, like a credit line.
+ * A phrase as a soft card in its category's colours: English kicker, big
+ * Arabic, transliteration, then the voices as tappable face chips.
  */
 export function PhraseCard({
   phrase,
@@ -32,66 +32,50 @@ export function PhraseCard({
   onOpen,
   onToggleBookmark,
   footer,
+  showCategory = false,
 }: PhraseCardProps) {
   const view = viewFor(phrase, dialect);
 
   return (
-    /* Not a <button>: it contains buttons. The English line is the control and
-       stretches across the entry via a pseudo-element. */
-    <article className="relative border-b border-line bg-card px-[22px] pb-[21px] pt-5">
-      <div className="flex items-baseline gap-3">
-        <span className="pt-0.5 text-[0.59375rem] tabular-nums tracking-[0.14em] text-ink-soft">
-          {String(index + 1).padStart(2, '0')}
-        </span>
+    <motion.article
+      initial={{ opacity: 0, y: 14, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 26, delay: Math.min(index, 8) * 0.045 }}
+      style={themeVars(phrase.category)}
+      className="relative rounded-card bg-card px-4 pb-4 pt-3.5 shadow-card"
+    >
+      <div className="flex items-start gap-2.5">
+        {showCategory && <CategorySticker category={phrase.category} className="mt-0.5 h-7 w-7 shrink-0" />}
 
+        {/* Not a <button> wrapper: the card contains buttons. The English line
+            is the control and stretches over the card via a pseudo-element. */}
         <button
           type="button"
           onClick={onOpen}
-          className="flex-1 text-left after:absolute after:inset-0 after:content-['']"
+          className="flex-1 pt-1 text-left font-display text-[0.9375rem] font-medium leading-snug text-cat-ink after:absolute after:inset-0 after:rounded-card after:content-['']"
         >
-          <span className="block text-[0.9375rem] leading-snug tracking-[-0.008em] text-ink-muted">
-            {view.english}
-          </span>
+          {view.english}
         </button>
 
-        <button
-          type="button"
-          onClick={onToggleBookmark}
-          aria-pressed={state.isBookmarked}
-          aria-label={state.isBookmarked ? 'Remove bookmark' : 'Bookmark this phrase'}
-          className={`relative z-10 -mr-1 shrink-0 p-1 transition-colors ${
-            state.isBookmarked ? 'text-brand' : 'text-ink-soft hover:text-brand'
-          }`}
-        >
-          <Bookmark className="h-[0.9375rem] w-[0.9375rem]" fill={state.isBookmarked ? 'currentColor' : 'none'} />
-        </button>
+        <HeartButton saved={state.isBookmarked} onToggle={onToggleBookmark} label={`“${view.english}”`} size="sm" />
       </div>
 
       <p
         dir="rtl"
         lang="ar"
-        className={`mt-3.5 text-[1.9375rem] leading-[1.95] ${
-          view.isFallback ? 'text-ink-muted' : 'text-ink'
-        }`}
+        className={`mt-1.5 text-[1.875rem] font-semibold leading-[1.8] ${view.isFallback ? 'text-ink-muted' : 'text-ink'}`}
       >
         {view.arabic}
       </p>
 
-      <p className="mt-1.5 text-[0.78125rem] italic tracking-[0.015em] text-ink-soft">
-        {view.transliteration}
-      </p>
+      <p className="text-[0.875rem] italic text-ink-muted">{view.transliteration}</p>
 
       {view.isFallback ? (
-        <div className="mt-[17px] border-l border-brand py-0.5 pl-[11px]">
-          <Pill tone="accent" className="mb-1">
-            MSA
-          </Pill>
-          <p className="text-[0.71875rem] italic leading-relaxed text-ink-soft">
-            Modern Standard Arabic — dialect recording coming
-          </p>
-        </div>
+        <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs font-semibold text-ink-soft">
+          Standard Arabic · dialect recording coming
+        </p>
       ) : view.samples.length > 0 ? (
-        <div className="mt-[17px] flex flex-wrap items-center border-t border-line pt-[13px]">
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           {view.samples.map((sample) => (
             <VoiceButton key={sample.speaker} sample={sample} phraseId={phrase.id} />
           ))}
@@ -99,11 +83,11 @@ export function PhraseCard({
       ) : null}
 
       {footer && <div className="relative z-10 mt-3">{footer}</div>}
-    </article>
+    </motion.article>
   );
 }
 
-/** The run of entries. Ruled, not stacked — no gaps between entries. */
+/** The run of cards. */
 export function PhraseList({ children }: { children: ReactNode }) {
-  return <div className="border-t border-line">{children}</div>;
+  return <div className="flex flex-col gap-3 px-4 pb-6">{children}</div>;
 }

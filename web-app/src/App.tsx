@@ -8,8 +8,11 @@ import { Culture } from './components/Culture';
 import { Settings } from './components/Settings';
 import { OnboardingDialog } from './components/OnboardingDialog';
 import { PhraseDetail } from './components/PhraseDetail';
-import { Masthead } from './components/Masthead';
+import { MiniBar } from './components/MiniBar';
+import { ContactSheet } from './components/Contact';
 import { Logo } from './components/Logo';
+import { Bisbis } from './components/art/Bisbis';
+import { Compass, Heart, Search as SearchGlyph, Sparkles } from 'lucide-react';
 import { PreviewSizer, usePhoneSize } from './components/PreviewSizer';
 
 import { phrases as PHRASES } from './data/phrases';
@@ -30,11 +33,11 @@ import { DialectId, Folder, Phrase, ThemePreference } from './types';
 
 type Tab = 'explore' | 'search' | 'saved' | 'culture';
 
-const TABS: Array<{ id: Tab; label: string }> = [
-  { id: 'explore', label: 'Explore' },
-  { id: 'search', label: 'Search' },
-  { id: 'saved', label: 'Saved' },
-  { id: 'culture', label: 'Culture' },
+const TABS: Array<{ id: Tab; label: string; icon: typeof Compass }> = [
+  { id: 'explore', label: 'Explore', icon: Compass },
+  { id: 'search', label: 'Search', icon: SearchGlyph },
+  { id: 'saved', label: 'Saved', icon: Heart },
+  { id: 'culture', label: 'Culture', icon: Sparkles },
 ];
 
 function prefersDark() {
@@ -53,6 +56,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('explore');
   const [showSettings, setShowSettings] = useState(false);
   const [openPhraseId, setOpenPhraseId] = useState<string | null>(null);
+  const [contactOpen, setContactOpen] = useState(false);
+  const closeContact = useCallback(() => setContactOpen(false), []);
 
   const dialect = dialectFromLabel(settings.currentDialect);
 
@@ -169,15 +174,18 @@ export default function App() {
         {/* On a laptop the phone column alone reads as a broken page, so the
             surrounding space carries the edition statement instead. */}
         <aside className="hidden max-w-sm lg:block">
-          <Logo size="lg" />
-          <h2 className="mt-8 text-3xl font-normal leading-tight tracking-[-0.015em] text-ink">
+          <div className="flex items-end gap-4">
+            <Logo size="lg" />
+            <Bisbis pose="sit" className="w-24" />
+          </div>
+          <h2 className="mt-8 text-3xl font-semibold leading-tight text-ink">
             Everyday Arabic, recorded by the people who speak it
           </h2>
           <p className="mt-4 text-base leading-relaxed text-ink-muted">
             Not synthesised, not textbook. {PHRASES.length} phrases a traveller actually needs,
-            in the dialect they will actually hear.
+            in Egyptian and Jordanian Arabic, from real voices in Cairo and Amman.
           </p>
-          <dl className="mt-9 flex gap-9 border-t border-line pt-5">
+          <dl className="mt-9 flex gap-9 border-t-2 border-dashed border-line pt-5">
             {[
               ['Phrases', String(PHRASES.length)],
               ['Voices', String(SPEAKERS.filter((s) => s.nameConfirmed).length)],
@@ -187,7 +195,7 @@ export default function App() {
                 <dt className="text-[0.59375rem] uppercase tracking-[0.16em] text-ink-soft">
                   {term}
                 </dt>
-                <dd className="mt-1.5 text-2xl tabular-nums text-ink">{value}</dd>
+                <dd className="mt-1.5 font-display text-2xl font-semibold tabular-nums text-ink">{value}</dd>
               </div>
             ))}
           </dl>
@@ -224,47 +232,37 @@ export default function App() {
               onDialectChange={setDialect}
               onThemeChange={(theme) => setSettings((prev) => ({ ...prev, theme }))}
               onClose={() => setShowSettings(false)}
+              onOpenContact={() => setContactOpen(true)}
             />
           ) : (
             <>
-              <Masthead
-                dialect={dialect}
-                onDialectChange={setDialect}
-                onOpenSettings={() => setShowSettings(true)}
-              />
-
-              <nav
-                aria-label="Sections"
-                className="flex justify-center gap-6 border-y border-line px-[22px] pb-3 pt-[11px]"
-              >
-                {TABS.map(({ id, label }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => setActiveTab(id)}
-                    aria-current={activeTab === id ? 'page' : undefined}
-                    className={`border-b pb-[3px] text-[0.59375rem] font-medium uppercase tracking-[0.2em] transition-colors ${
-                      activeTab === id
-                        ? 'border-brand text-ink'
-                        : 'border-transparent text-ink-soft hover:text-ink-muted'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </nav>
+              {activeTab !== 'explore' && (
+                <MiniBar
+                  dialect={dialect}
+                  onDialectChange={setDialect}
+                  onOpenSettings={() => setShowSettings(true)}
+                />
+              )}
 
               <main className="flex-1 overflow-hidden">
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeTab}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.15 }}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
                     className="h-full"
                   >
-                    {activeTab === 'explore' && <Explore phrases={PHRASES} {...shared} />}
+                    {activeTab === 'explore' && (
+                      <Explore
+                        phrases={PHRASES}
+                        {...shared}
+                        onDialectChange={setDialect}
+                        onOpenSettings={() => setShowSettings(true)}
+                        onOpenContact={() => setContactOpen(true)}
+                      />
+                    )}
                     {activeTab === 'search' && <Search phrases={PHRASES} {...shared} />}
                     {activeTab === 'culture' && <Culture dialect={dialect} />}
                     {activeTab === 'saved' && (
@@ -279,6 +277,36 @@ export default function App() {
                   </motion.div>
                 </AnimatePresence>
               </main>
+
+              <nav
+                aria-label="Sections"
+                className="safe-bottom relative z-20 mx-3 mb-3 flex items-center justify-around rounded-[1.375rem] bg-card py-1.5 shadow-float"
+              >
+                {TABS.map(({ id, label, icon: Icon }) => {
+                  const on = activeTab === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      onClick={() => setActiveTab(id)}
+                      aria-current={on ? 'page' : undefined}
+                      className={`flex w-16 flex-col items-center gap-0.5 rounded-2xl py-1.5 font-display text-[0.6875rem] font-semibold transition-colors ${
+                        on ? 'text-brand' : 'text-ink-soft hover:text-ink-muted'
+                      }`}
+                    >
+                      <motion.span
+                        key={on ? `${id}-on` : id}
+                        initial={on ? { y: 0 } : false}
+                        animate={on ? { y: [0, -7, 0] } : { y: 0 }}
+                        transition={{ duration: 0.45, ease: 'easeOut' }}
+                      >
+                        <Icon className="h-[1.375rem] w-[1.375rem]" fill={on && id === 'saved' ? 'currentColor' : 'none'} strokeWidth={on ? 2.4 : 2} aria-hidden="true" />
+                      </motion.span>
+                      {label}
+                    </button>
+                  );
+                })}
+              </nav>
             </>
           )}
         </div>
@@ -296,6 +324,8 @@ export default function App() {
           />
         )}
       </AnimatePresence>
+
+      <ContactSheet open={contactOpen} onClose={closeContact} />
     </div>
   );
 }

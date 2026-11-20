@@ -4,7 +4,7 @@ import { Search as SearchIcon, WifiOff, X } from 'lucide-react';
 import { PhraseCard, PhraseList } from './PhraseCard';
 import { DialectId, Phrase, PhraseState } from '../types';
 import { matchesQuery } from '../lib/phrase';
-import { SectionHead } from './SectionHead';
+import { EmptyState, ListHead } from './ListHead';
 
 interface SearchProps {
   phrases: Phrase[];
@@ -56,8 +56,8 @@ export function Search({
 
   return (
     <div className="flex h-full flex-col">
-      <header className="px-[22px] pb-4 pt-[26px]">
-        <h2 className="mb-3 text-[0.625rem] font-semibold uppercase tracking-[0.24em] text-ink">
+      <header className="px-4 pb-2 pt-5">
+        <h2 className="mb-3 font-display text-2xl font-semibold text-ink">
           Search
         </h2>
 
@@ -74,7 +74,7 @@ export function Search({
             onChange={(e) => setQuery(e.target.value)}
             placeholder="English, Arabic, or transliteration…"
             aria-label="Search phrases"
-            className="w-full rounded-card border border-line bg-card py-2.5 pl-10 pr-10 text-sm text-ink placeholder:text-ink-soft focus:border-brand focus:outline-none"
+            className="w-full rounded-full bg-card py-3 pl-10 pr-10 text-[0.9375rem] text-ink shadow-card placeholder:text-ink-soft focus:outline-none focus:ring-2 focus:ring-brand"
           />
           {hasQuery && (
             <button
@@ -89,9 +89,9 @@ export function Search({
         </div>
 
         {!isOnline && (
-          <p className="mt-3 flex items-center gap-2 rounded-lg bg-brand-softer px-3 py-2 text-xs text-ink-muted">
+          <p className="mt-3 flex items-center gap-2 rounded-2xl bg-brand-soft px-3 py-2 text-xs font-semibold text-ink-muted">
             <WifiOff className="h-3.5 w-3.5 shrink-0 text-brand" aria-hidden="true" />
-            You're offline. Phrases still work — audio needs a connection.
+            You're offline. Phrases still work, and so does audio you've already played.
           </p>
         )}
       </header>
@@ -100,7 +100,7 @@ export function Search({
         {!hasQuery ? (
           suggestions.length > 0 ? (
             <>
-              <SectionHead title="Recently viewed" meta={`${suggestions.length}`} />
+              <ListHead title="Recently viewed" meta={`${suggestions.length}`} />
               <PhraseList>
                 {suggestions.map((phrase, i) => (
                   <PhraseCard
@@ -111,6 +111,7 @@ export function Search({
                     state={getState(phrase.id)}
                     onOpen={() => onOpenPhrase(phrase)}
                     onToggleBookmark={() => onToggleBookmark(phrase.id)}
+                    showCategory
                   />
                 ))}
               </PhraseList>
@@ -128,7 +129,7 @@ export function Search({
           />
         ) : (
           <>
-            <SectionHead
+            <ListHead
               title="Results"
               meta={`${results.length} ${results.length === 1 ? 'match' : 'matches'}`}
             />
@@ -143,6 +144,7 @@ export function Search({
                     state={getState(phrase.id)}
                     onOpen={() => onOpenPhrase(phrase)}
                     onToggleBookmark={() => onToggleBookmark(phrase.id)}
+                    showCategory
                   />
                 ))}
               </PhraseList>
@@ -150,18 +152,6 @@ export function Search({
           </>
         )}
       </div>
-    </div>
-  );
-}
-
-function EmptyState({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="flex h-full flex-col items-center justify-center px-10 pb-16 text-center">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-card border border-line">
-        <SearchIcon className="h-5 w-5 text-ink-soft" aria-hidden="true" />
-      </div>
-      <h3 className="text-[0.625rem] font-semibold uppercase tracking-[0.24em] text-ink">{title}</h3>
-      <p className="mt-2.5 max-w-xs text-[0.8125rem] italic leading-relaxed text-ink-soft">{body}</p>
     </div>
   );
 }
