@@ -1,1 +1,7 @@
-/*    /index.html   200
+# Static folders: a missing file is a real 404, never the app shell
+# (Netlify only applies these when no file exists at the path).
+/audio/*     /404.html   404
+/speakers/*  /404.html   404
+/assets/*    /404.html   404
+/icons/*     /404.html   404
+/*           /index.html 200

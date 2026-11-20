@@ -5,13 +5,13 @@
   "framework": "vite",
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!audio/|speakers/|assets/|icons/).*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/((?!audio/|speakers/|assets/|icons/).*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
