@@ -22,7 +22,7 @@ npm run lint         # ESLint warnings/errors
   service-worker cached). Supabase is no longer used — the old project was
   paused/deleted and its host stopped resolving (Nov 2026).
 - **Dialects:** Levantine/Jordanian (Habib, Ghaina, Khalid, Salim), Egyptian/Cairene
-  (Mario, Karim, Omar, Ali — 129 of 148 phrases; the rest fall back to MSA with a notice)
+  (Mario, Karim, Omar, Ali — 145 of 148 phrases; the rest fall back to MSA with a notice)
 
 ## Project State
 
