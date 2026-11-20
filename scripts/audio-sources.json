@@ -2003,5 +2003,165 @@
    "from": 315.19,
    "to": 316.13
   }
+ ],
+ "eg/omar/092.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(4).wav",
+   "from": 47.5,
+   "to": 48.18
+  }
+ ],
+ "eg/karim/092.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(4).wav",
+   "from": 48.52,
+   "to": 49.24
+  }
+ ],
+ "eg/ali/092.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(4).wav",
+   "from": 49.53,
+   "to": 50.13
+  }
+ ],
+ "eg/karim/068.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(3).wav",
+   "from": 99.95,
+   "to": 101.53
+  }
+ ],
+ "eg/omar/068.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(3).wav",
+   "from": 102.28,
+   "to": 104.06
+  }
+ ],
+ "eg/omar/073.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(3).wav",
+   "from": 128.29,
+   "to": 132.22
+  }
+ ],
+ "eg/karim/027.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Khalid, Omar, karim.wav",
+   "from": 368.1,
+   "to": 369.96
+  }
+ ],
+ "eg/karim/042.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(2).wav",
+   "from": 32.43,
+   "to": 33.33
+  }
+ ],
+ "eg/karim/074.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(3).wav",
+   "from": 179.08,
+   "to": 180.36
+  }
+ ],
+ "eg/omar/077.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(3).wav",
+   "from": 208.73,
+   "to": 209.73
+  }
+ ],
+ "eg/omar/079.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(3).wav",
+   "from": 255.93,
+   "to": 257.63
+  }
+ ],
+ "eg/karim/083.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(3).wav",
+   "from": 302.52,
+   "to": 303.13
+  }
+ ],
+ "eg/karim/035.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Khalid, Omar, karim.wav",
+   "from": 472.2,
+   "to": 472.75
+  }
+ ],
+ "eg/karim/037.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Khalid, Omar, karim.wav",
+   "from": 494.8,
+   "to": 495.44
+  }
+ ],
+ "eg/karim/038.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Khalid, Omar, karim.wav",
+   "from": 500.44,
+   "to": 501.29
+  }
+ ],
+ "eg/karim/133.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_.wav",
+   "from": 187.6,
+   "to": 188.8
+  }
+ ],
+ "eg/ali/140.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(1).wav",
+   "from": 63.12,
+   "to": 64.23
+  }
+ ],
+ "eg/omar/140.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_(1).wav",
+   "from": 66.17,
+   "to": 67.09
+  }
+ ],
+ "eg/karim/136.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_.wav",
+   "from": 276.66,
+   "to": 280.91
+  },
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_.wav",
+   "from": 281.13,
+   "to": 281.85
+  },
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_.wav",
+   "from": 282.01,
+   "to": 284.84
+  }
+ ],
+ "eg/omar/137.mp3": [
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_.wav",
+   "from": 297.01,
+   "to": 298.48
+  },
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_.wav",
+   "from": 298.67,
+   "to": 299.34
+  },
+  {
+   "file": "MULTI/Ali, Omar, Karim /Ali, Omar, Karim Uncut/Ali, Omar, Karim_.wav",
+   "from": 299.56,
+   "to": 302.7
+  }
  ]
 }
