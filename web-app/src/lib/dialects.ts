@@ -10,6 +10,8 @@ export interface DialectConfig {
   region: string;
   /** Which regional variant the phrase data actually represents. */
   variant: string;
+  /** Where its recordings were made, for credits. */
+  recordedIn: string;
   /**
    * Recording status. `partial` means some phrases have audio; `pending` means
    * the recordings exist but are not published yet. The UI must never imply a
@@ -27,6 +29,7 @@ export const DIALECTS: Record<DialectId, DialectConfig> = {
     nativeName: 'المصرية',
     region: 'Egypt · the most widely understood dialect',
     variant: 'Cairene',
+    recordedIn: 'Cairo',
     audio: 'available',
     audioNote:
       'No Egyptian recording for this phrase yet. Modern Standard Arabic is shown instead.',
@@ -37,6 +40,7 @@ export const DIALECTS: Record<DialectId, DialectConfig> = {
     nativeName: 'الشامية',
     region: 'Jordan, Palestine, Syria, Lebanon',
     variant: 'Jordanian',
+    recordedIn: 'Amman',
     audio: 'available',
   },
 };

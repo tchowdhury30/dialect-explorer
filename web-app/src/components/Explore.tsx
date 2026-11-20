@@ -143,9 +143,9 @@ export function Explore({
           {BRAND.arabic}
         </span>
         <p className="text-[0.59375rem] uppercase leading-relaxed tracking-[0.16em] text-ink-soft">
-          {phrases.length} phrases · 4 voices
+          {phrases.length} phrases · {voiceCount(voicesFor(dialect).length)}
           <br />
-          Recorded in Amman
+          Recorded in {config.recordedIn}
         </p>
       </footer>
     </div>
