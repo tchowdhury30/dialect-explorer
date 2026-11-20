@@ -1,10 +1,11 @@
 import { Phrase, Category, VoiceSample } from '../types';
 import { egyptianEntry } from './egyptian';
+import { clipUrl } from './clips';
 
 // Clips are built by scripts/build-audio.mjs into public/audio and served from
 // the app's own origin: trimmed, loudness-normalised, ~15 KB each.
 const audio = (dir: string, speaker: string, fileNum: number) =>
-  `/audio/${dir}/${speaker}/${String(fileNum).padStart(3, '0')}.mp3`;
+  clipUrl(`${dir}/${speaker}/${String(fileNum).padStart(3, '0')}.mp3`);
 const jo = (speaker: string, fileNum: number) => audio('jo', speaker, fileNum);
 
 // File numbers per speaker (from actual Supabase upload inventory + transcription)

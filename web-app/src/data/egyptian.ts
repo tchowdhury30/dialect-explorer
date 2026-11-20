@@ -1,3 +1,4 @@
+import { clipUrl } from './clips';
 import { DialectEntry, SpeakerName, VoiceSample } from '../types';
 
 /**
@@ -185,7 +186,7 @@ export function egyptianEntry(phraseNum: number): DialectEntry | undefined {
     prefix: voice === 'mario' ? 'MC' : 'AOK',
     phraseNum,
     trackNum: 0,
-    audioUrl: `/audio/eg/${voice}/${n}.mp3`,
+    audioUrl: clipUrl(`eg/${voice}/${n}.mp3`),
   }));
   return { dialectId: 'egyptian', name: 'Egyptian', english, arabicScript, transliteration, samples };
 }

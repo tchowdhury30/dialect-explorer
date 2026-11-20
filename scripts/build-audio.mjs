@@ -41,10 +41,13 @@ const FFMPEG = process.env.FFMPEG || 'ffmpeg';
 const force = process.argv.includes('--force');
 
 /** Bump when the processing below changes, so every clip is rebuilt once. */
-const PIPELINE = 2;
+const PIPELINE = 3;
 const LEAD_MS = 180;
 const TAIL_MS = 300;
 const BUILT = join(ROOT, 'scripts', 'audio-built.json');
+// The app appends each clip's hash to its URL (?v=…), so a rebuilt clip is a
+// new URL and no browser or CDN can keep playing a stale copy.
+const VERSIONS = join(ROOT, 'web-app', 'src', 'data', 'audio-versions.json');
 const builtHashes = existsSync(BUILT) ? JSON.parse(readFileSync(BUILT, 'utf8')) : {};
 const hashOf = (inputs) =>
   createHash('sha1').update(JSON.stringify({ PIPELINE, LEAD_MS, TAIL_MS, inputs })).digest('hex').slice(0, 12);
@@ -78,7 +81,11 @@ function analyse(src, filter) {
  * The threshold is relative to the clip's own peak (35 dB below it), not a
  * fixed level: the session recordings peak around -16 dB, and a fixed -45 dB
  * gate was eating soft word onsets ("أنا آسف" came out as "أو أنت").
- * Keeps 120 ms of air either side so first consonants are never clipped.
+ * Keeps 120 ms of air before the first word so its consonant is never clipped.
+ *
+ * The end is found separately and much more gently (50 dB below peak, then
+ * 250 ms of air): words fade out, and the 35 dB gate was cutting the tail of
+ * the last syllable on quiet takes.
  */
 function speechSpan(src) {
   const stats = analyse(src, 'aformat=channel_layouts=mono,volumedetect');
@@ -99,8 +106,15 @@ function speechSpan(src) {
   const lastStart = starts[starts.length - 1];
   const trailing = starts.length > ends.length || (ends.length && ends[ends.length - 1] >= dur - 0.05);
   if (starts.length && trailing && lastStart > from) to = lastStart;
+  const soft = analyse(src, `aformat=channel_layouts=mono,silencedetect=n=${(peak - 50).toFixed(1)}dB:d=0.25`);
+  const sStarts = [...soft.matchAll(/silence_start: (-?[\d.]+)/g)].map((m) => Number(m[1]));
+  const sEnds = [...soft.matchAll(/silence_end: ([\d.]+)/g)].map((m) => Number(m[1]));
+  const softTrailing =
+    sStarts.length > sEnds.length || (sEnds.length && sEnds[sEnds.length - 1] >= dur - 0.05);
+  const softEnd = sStarts.length && softTrailing ? sStarts[sStarts.length - 1] : dur;
+  to = Math.max(to, softEnd);
   if (!(to > from)) return { from: 0, to: dur };
-  return { from: Math.max(0, from - 0.12), to: Math.min(dur, to + 0.12) };
+  return { from: Math.max(0, from - 0.12), to: Math.min(dur, to + 0.25) };
 }
 
 let built = 0;
@@ -183,6 +197,8 @@ for (const [out, inputs] of Object.entries(sources)) {
 }
 
 writeFileSync(BUILT, JSON.stringify(builtHashes, null, 1) + '\n');
+const versions = Object.fromEntries(Object.keys(sources).filter((k) => builtHashes[k]).map((k) => [k, builtHashes[k].slice(0, 8)]));
+writeFileSync(VERSIONS, JSON.stringify(versions, null, 1) + '\n');
 console.log(`\nBuilt ${built}, kept ${skipped} existing, ${failed.length} failed.`);
 for (const f of failed) console.log(`  FAILED ${f}`);
 process.exit(failed.length ? 1 : 0);
