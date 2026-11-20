@@ -46,8 +46,7 @@ npm run lint         # ESLint warnings/errors
     the `{file, from, to}` entries in audio-sources.json. `Extra.wav` is them
     talking about the dialect in English (Culture-tab material, unused).
   - Never present Jordanian wording or audio as Egyptian.
-- **Next:** native review of Egyptian text; label portraits egypt1–3 (Karim/Omar/Ali?)
-  and Mario; speaker bios (recorded in `Ali, Omar, Karim Bios_.wav`)
+- **Next:** native review of Egyptian text; Mario's portrait; speaker bios (recorded in `Ali, Omar, Karim Bios_.wav`)
 
 ## Design Direction
 

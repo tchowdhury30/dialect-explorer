@@ -26,12 +26,11 @@ export const SPEAKERS: Speaker[] = [
   { id: 'salim', name: 'Salim', dialectId: 'levantine', photo: '/speakers/salim.jpg', nameConfirmed: true },
 
   // Egyptian. Karim, Omar and Ali recorded together (all CS students in
-  // Cairo); which of the three portraits in /public/speakers (egypt1-3) is
-  // whose is not labelled yet, so they render the generated motif until it is.
+  // Cairo). Mario has no portrait yet and renders the generated motif.
   { id: 'mario', name: 'Mario', dialectId: 'egyptian', nameConfirmed: true },
-  { id: 'karim', name: 'Karim', dialectId: 'egyptian', nameConfirmed: true },
-  { id: 'omar', name: 'Omar', dialectId: 'egyptian', nameConfirmed: true },
-  { id: 'ali', name: 'Ali', dialectId: 'egyptian', nameConfirmed: true },
+  { id: 'karim', name: 'Karim', dialectId: 'egyptian', photo: '/speakers/karim.jpg', nameConfirmed: true },
+  { id: 'omar', name: 'Omar', dialectId: 'egyptian', photo: '/speakers/omar.jpg', nameConfirmed: true },
+  { id: 'ali', name: 'Ali', dialectId: 'egyptian', photo: '/speakers/ali.jpg', nameConfirmed: true },
 ];
 
 export function speakersFor(dialect: DialectId): Speaker[] {
