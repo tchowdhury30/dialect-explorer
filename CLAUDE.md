@@ -18,8 +18,8 @@ npm run lint         # ESLint warnings/errors
 
 - **Frontend:** React 18 + Vite + TypeScript + Tailwind + shadcn/ui + Framer Motion
 - **Mobile:** Expo + React Native (simpler, older version)
-- **Audio:** Bundled static mp3s in `web-app/public/audio/` (~5 MB, same-origin,
-  service-worker cached). Supabase is no longer used — the old project was
+- **Audio:** Bundled static mp3s in `web-app/public/audio/` (~9 MB, same-origin,
+  service-worker cached; ranges sliced from the cached file). Supabase is no longer used — the old project was
   paused/deleted and its host stopped resolving (Nov 2026).
 - **Dialects:** Levantine/Jordanian (Habib, Ghaina, Khalid, Salim), Egyptian/Cairene
   (Mario, Karim, Omar, Ali — 145 of 148 phrases; the rest fall back to MSA with a notice)
@@ -34,7 +34,11 @@ npm run lint         # ESLint warnings/errors
   multi-take clips (counting) and writes `web-app/public/audio/{jo,eg}/<speaker>/<NNN>.mp3`.
   A source can be `{file, from, to}` to cut a span out of a long uncut session.
   Trimming is relative to each clip's own peak (a fixed gate ate soft onsets);
-  loudness is two-pass linear. Commit the built mp3s. `--force` rebuilds all.
+  loudness is two-pass linear; each clip gets short fades plus 180 ms of
+  silence before and 300 ms after (many raw takes start/stop exactly on a word,
+  and phones swallow the first moment of playback). A clip rebuilds when its
+  sources or the pipeline change (hashes in `scripts/audio-built.json`).
+  Commit the built mp3s and audio-built.json. `--force` rebuilds all.
 - **Egyptian:** `data/egyptian.ts` — wording drafted from Whisper transcripts of
   the takes themselves, NOT yet native-speaker reviewed. Each phrase lists only
   the voices whose take says exactly the wording shown.

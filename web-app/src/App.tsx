@@ -14,6 +14,7 @@ import { PreviewSizer, usePhoneSize } from './components/PreviewSizer';
 
 import { phrases as PHRASES } from './data/phrases';
 import { DIALECTS, applyDocumentTheme, dialectFromLabel } from './lib/dialects';
+import { SPEAKERS } from './lib/speakers';
 import {
   AppSettings,
   EMPTY_PHRASE_STATE,
@@ -115,6 +116,8 @@ export default function App() {
   const startResize = useCallback(
     (e: React.PointerEvent) => {
       e.preventDefault();
+      const handle = e.currentTarget as Element;
+      handle.setPointerCapture?.(e.pointerId);
       const x0 = e.clientX;
       const y0 = e.clientY;
       const w0 = size.w;
@@ -122,15 +125,18 @@ export default function App() {
 
       const onMove = (ev: PointerEvent) =>
         setSize({ w: w0 + (ev.clientX - x0), h: h0 + (ev.clientY - y0) });
+      // pointercancel too: a drag the OS interrupts must not stay attached.
       const onUp = () => {
         window.removeEventListener('pointermove', onMove);
         window.removeEventListener('pointerup', onUp);
+        window.removeEventListener('pointercancel', onUp);
         document.body.style.userSelect = '';
       };
 
       document.body.style.userSelect = 'none';
       window.addEventListener('pointermove', onMove);
       window.addEventListener('pointerup', onUp);
+      window.addEventListener('pointercancel', onUp);
     },
     [size, setSize]
   );
@@ -174,7 +180,7 @@ export default function App() {
           <dl className="mt-9 flex gap-9 border-t border-line pt-5">
             {[
               ['Phrases', String(PHRASES.length)],
-              ['Voices', '4'],
+              ['Voices', String(SPEAKERS.filter((s) => s.nameConfirmed).length)],
               ['Dialects', '2'],
             ].map(([term, value]) => (
               <div key={term}>

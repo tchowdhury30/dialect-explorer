@@ -16,13 +16,21 @@
  *     playback starts on the first word without clipping soft onsets
  *   - loudness is normalised with one constant gain (many raw takes peak near
  *     -28 dB, too quiet for a phone speaker in the street)
+ *   - 10/20 ms fades and a little silence either side (LEAD_MS / TAIL_MS):
+ *     many raw takes start and stop exactly on a word, and phones and
+ *     Bluetooth speakers swallow the first fraction of a second while the
+ *     output wakes, so a clip with no air around it sounds cut short
  *   - encoded mono 64 kbps — speech needs no more, and clips stay ~10–20 KB
+ *
+ * A clip is rebuilt when its sources or PIPELINE change (hashes are kept in
+ * scripts/audio-built.json), so editing audio-sources.json is enough.
  *
  * The clips ship with the site and are served from the same origin, so there
  * is no third-party storage to pause, expire, or rate-limit.
  */
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -31,6 +39,15 @@ const RAW = join(ROOT, 'Audios');
 const OUT = join(ROOT, 'web-app', 'public', 'audio');
 const FFMPEG = process.env.FFMPEG || 'ffmpeg';
 const force = process.argv.includes('--force');
+
+/** Bump when the processing below changes, so every clip is rebuilt once. */
+const PIPELINE = 2;
+const LEAD_MS = 180;
+const TAIL_MS = 300;
+const BUILT = join(ROOT, 'scripts', 'audio-built.json');
+const builtHashes = existsSync(BUILT) ? JSON.parse(readFileSync(BUILT, 'utf8')) : {};
+const hashOf = (inputs) =>
+  createHash('sha1').update(JSON.stringify({ PIPELINE, LEAD_MS, TAIL_MS, inputs })).digest('hex').slice(0, 12);
 
 const sources = JSON.parse(readFileSync(join(ROOT, 'scripts', 'audio-sources.json'), 'utf8'));
 
@@ -42,10 +59,17 @@ function inputArgs(src) {
   return [...seek, '-i', join(RAW, srcFile(src))];
 }
 
+function ffmpeg(args) {
+  const r = spawnSync(FFMPEG, args, { encoding: 'utf8' });
+  if (r.error) {
+    console.error(`Could not run ffmpeg (${FFMPEG}): ${r.error.message}. Install it or set FFMPEG.`);
+    process.exit(2);
+  }
+  return r;
+}
+
 function analyse(src, filter) {
-  return spawnSync(FFMPEG, ['-hide_banner', '-nostats', ...inputArgs(src), '-af', filter, '-f', 'null', '-'], {
-    encoding: 'utf8',
-  }).stderr;
+  return ffmpeg(['-hide_banner', '-nostats', ...inputArgs(src), '-af', filter, '-f', 'null', '-']).stderr;
 }
 
 /**
@@ -85,7 +109,8 @@ const failed = [];
 
 for (const [out, inputs] of Object.entries(sources)) {
   const dst = join(OUT, out);
-  if (!force && existsSync(dst)) {
+  const hash = hashOf(inputs);
+  if (!force && existsSync(dst) && builtHashes[out] === hash) {
     skipped++;
     continue;
   }
@@ -114,36 +139,50 @@ for (const [out, inputs] of Object.entries(sources)) {
   // Two-pass loudness normalisation in linear mode: measure, then apply one
   // constant gain. Single-pass loudnorm is dynamic and audibly warps clips
   // shorter than its 3 s window — most of ours.
-  const measure = spawnSync(
-    FFMPEG,
+  const measure = ffmpeg(
     ['-hide_banner', '-nostats', ...inputsArgs, '-filter_complex',
       [...pieces, joined, '[j]loudnorm=I=-16:TP=-1.5:LRA=11:print_format=json[out]'].join(';'),
-      '-map', '[out]', '-f', 'null', '-'],
-    { encoding: 'utf8' }
+      '-map', '[out]', '-f', 'null', '-']
   ).stderr;
-  const m = JSON.parse(measure.slice(measure.lastIndexOf('{'), measure.lastIndexOf('}') + 1) || '{}');
+  let m = {};
+  try {
+    m = JSON.parse(measure.slice(measure.lastIndexOf('{'), measure.lastIndexOf('}') + 1));
+  } catch {
+    // fall through to no normalisation for this clip
+  }
   const norm =
     m.input_i && Number.isFinite(Number(m.input_i))
       ? `loudnorm=I=-16:TP=-1.5:LRA=11:linear=true:measured_I=${m.input_i}:measured_TP=${m.input_tp}:measured_LRA=${m.input_lra}:measured_thresh=${m.input_thresh}:offset=${m.target_offset}`
       : 'anull';
 
   const args = ['-v', 'error', '-y', ...inputsArgs,
-    '-filter_complex', [...pieces, joined, `[j]${norm}[out]`].join(';'),
+    '-filter_complex', [...pieces, joined,
+      `[j]${norm},afade=t=in:d=0.01,areverse,afade=t=in:d=0.02,areverse,` +
+      `adelay=${LEAD_MS}:all=1,apad=pad_dur=${TAIL_MS / 1000}[out]`].join(';'),
     '-map', '[out]',
     '-ar', '44100', '-ac', '1', '-b:a', '64k',
     '-map_metadata', '-1',
     dst,
   ];
 
-  const r = spawnSync(FFMPEG, args, { encoding: 'utf8' });
+  const r = ffmpeg(args);
   if (r.status !== 0 || !existsSync(dst) || statSync(dst).size < 1000) {
     failed.push(`${out}: ${(r.stderr || 'empty output').trim().split('\n').pop()}`);
+    // Never leave a broken file behind for the next run to treat as built.
+    try {
+      unlinkSync(dst);
+    } catch {
+      // nothing written
+    }
+    delete builtHashes[out];
     continue;
   }
+  builtHashes[out] = hash;
   built++;
   if (built % 25 === 0) console.log(`  ${built} built…`);
 }
 
+writeFileSync(BUILT, JSON.stringify(builtHashes, null, 1) + '\n');
 console.log(`\nBuilt ${built}, kept ${skipped} existing, ${failed.length} failed.`);
 for (const f of failed) console.log(`  FAILED ${f}`);
 process.exit(failed.length ? 1 : 0);

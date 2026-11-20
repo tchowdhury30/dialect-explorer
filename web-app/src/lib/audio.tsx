@@ -83,14 +83,18 @@ export function AudioProvider({ children }: { children: ReactNode }) {
 
       el.onplaying = () => activeIdRef.current === id && setStatus('playing');
       el.onended = () => settle('idle');
-      el.onerror = () => {
+      // Only a clip that is still current can fail. Switching voices or
+      // closing the sheet tears the element down, which rejects its pending
+      // play() with AbortError — that is an interruption, not a bad file.
+      const fail = () => {
+        if (elementRef.current !== el) return;
         setFailedIds((prev) => new Set(prev).add(id));
         settle('error');
       };
-
-      el.play().catch(() => {
-        setFailedIds((prev) => new Set(prev).add(id));
-        settle('error');
+      el.onerror = fail;
+      el.play().catch((err: unknown) => {
+        if (err instanceof DOMException && err.name === 'AbortError') return;
+        fail();
       });
     },
     [stop, teardown]

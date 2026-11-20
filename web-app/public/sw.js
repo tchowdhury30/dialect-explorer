@@ -10,12 +10,15 @@
  *   /assets/*    cache-first    — filenames are content-hashed by Vite, so a
  *                                 hit can never be the wrong version.
  *   audio (mp3)  cache-first    — recordings never change; capped so a long
- *                                 session cannot fill the device.
+ *                                 session cannot fill the device. Browsers
+ *                                 request media in byte ranges, so the whole
+ *                                 file is cached once and ranges are sliced
+ *                                 from it.
  *
  * Bump VERSION to retire every old cache on the next visit.
  */
 
-const VERSION = 'v2';
+const VERSION = 'v3';
 const SHELL = `shell-${VERSION}`;
 const ASSETS = `assets-${VERSION}`;
 const AUDIO = `audio-${VERSION}`;
@@ -65,11 +68,54 @@ async function cacheFirst(request, cacheName, opts = {}) {
   return response;
 }
 
+/** Whole-file cache for a clip; Range requests get a 206 sliced from it. */
+async function audioResponse(request) {
+  const cache = await caches.open(AUDIO);
+  const url = request.url;
+  let full = await cache.match(url);
+  if (!full) {
+    full = await fetch(url); // no Range header: always the complete file
+    if (full.ok && full.status === 200) {
+      await cache.put(url, full.clone());
+      trim(AUDIO, AUDIO_MAX_ENTRIES);
+    } else {
+      return full;
+    }
+  }
+  const range = request.headers.get('range');
+  const m = range && /^bytes=(\d*)-(\d*)$/.exec(range.trim());
+  if (!m) return full;
+  const buf = await full.arrayBuffer();
+  const size = buf.byteLength;
+  let start = m[1] === '' ? size - Number(m[2]) : Number(m[1]);
+  let end = m[1] !== '' && m[2] !== '' ? Number(m[2]) : size - 1;
+  start = Math.max(0, start);
+  end = Math.min(end, size - 1);
+  if (start > end) {
+    return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${size}` } });
+  }
+  return new Response(buf.slice(start, end + 1), {
+    status: 206,
+    headers: {
+      'Content-Type': full.headers.get('Content-Type') || 'audio/mpeg',
+      'Content-Range': `bytes ${start}-${end}/${size}`,
+      'Content-Length': String(end - start + 1),
+      'Accept-Ranges': 'bytes',
+    },
+  });
+}
+
 async function networkFirst(request) {
   const cache = await caches.open(SHELL);
   try {
     const response = await fetch(request);
-    if (response.ok) cache.put('/', response.clone());
+    // Only the HTML app shell may become the offline fallback — never an mp3,
+    // image or 404 page someone opened directly in a tab.
+    const isShell =
+      response.ok &&
+      !/\.[a-z0-9]+$/i.test(new URL(request.url).pathname) &&
+      (response.headers.get('Content-Type') || '').includes('text/html');
+    if (isShell) cache.put('/', response.clone());
     return response;
   } catch (err) {
     const cached = (await cache.match(request)) || (await cache.match('/'));
@@ -105,9 +151,8 @@ self.addEventListener('fetch', (event) => {
           })
           .catch(() => caches.match(request))
       );
-    } else if (url.pathname.startsWith('/audio/') && !request.headers.has('range')) {
-      // Only whole-file fetches; a partial response would poison the cache.
-      event.respondWith(cacheFirst(request, AUDIO, { max: AUDIO_MAX_ENTRIES }));
+    } else if (url.pathname.startsWith('/audio/')) {
+      event.respondWith(audioResponse(request));
     }
     return;
   }

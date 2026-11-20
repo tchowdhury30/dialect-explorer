@@ -63,10 +63,18 @@ export function PhraseDetail({
   // Stop playback when the sheet closes, so audio never outlives its context.
   useEffect(() => stop, [stop]);
 
+  // The parent passes a new onClose each render; read it through a ref so the
+  // effect below runs once per open and focus is not yanked back to Close
+  // every time something (a bookmark toggle) re-renders the app.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   useEffect(() => {
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onCloseRef.current();
     };
     document.addEventListener('keydown', onKey);
     const { overflow } = document.body.style;
@@ -75,7 +83,7 @@ export function PhraseDetail({
       document.removeEventListener('keydown', onKey);
       document.body.style.overflow = overflow;
     };
-  }, [onClose]);
+  }, []);
 
   return (
       <motion.div
