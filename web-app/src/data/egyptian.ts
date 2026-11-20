@@ -1,0 +1,177 @@
+import { DialectEntry, SpeakerName, VoiceSample } from '../types';
+
+/**
+ * Egyptian (Cairene) entries.
+ *
+ * Voices: Mario, and Karim, Omar and Ali (CS students in Cairo — Karim and Ali
+ * at AUC). Each voice is listed only where its take says exactly the wording
+ * shown; where most voices agreed on different wording from Mario's, that
+ * wording is used and Mario's take is left out.
+ *
+ * Wording was drafted from Whisper transcripts of the recordings themselves —
+ * NOT yet checked by a native speaker. Speakers were identified by voice
+ * (SpeechBrain ECAPA embeddings against each speaker's recorded bio).
+ * Where a voice localised or reworded a line (Pyramids for Rainbow Street,
+ * Egyptian pounds for JD) the 4th field gives the English for what is said.
+ *
+ * Audio: /audio/eg/<voice>/<phraseNum>.mp3, built by scripts/build-audio.mjs
+ * from scripts/audio-sources.json.
+ */
+type Voice = 'mario' | 'karim' | 'omar' | 'ali';
+
+const NAMES: Record<Voice, SpeakerName> = {
+  mario: 'Mario',
+  karim: 'Karim',
+  omar: 'Omar',
+  ali: 'Ali',
+};
+
+const EG: Record<number, [arabic: string, transliteration: string, voices: Voice[], english?: string]> = {
+  1: ['أهلًا / السلام عليكم', "ahlan / is-salaamu 'alaykum", ['karim', 'omar']],
+  2: ['إزيك؟ عامل إيه؟', "izzayyak? 'aamil eih?", ['mario']],
+  4: ['اسمي ___', 'ismi ___', ['mario', 'karim', 'omar']],
+  6: ['أنا من مصر', 'ana min masr', ['mario'], 'I am from Egypt'],
+  7: ['أنا بتكلم عربي شوية شوية', "ana batkallim 'arabi shwayya shwayya", ['mario']],
+  8: ['أنا بتكلم فصحى', 'ana batkallim fusha', ['karim', 'omar']],
+  9: ['أنا بتعلم عربي', "ana bat'allim 'arabi", ['karim']],
+  10: ['إنت بتدرس إيه؟', 'inta btidris eih?', ['mario']],
+  11: ['بتشتغل فين؟', 'btishtaghal fein?', ['karim', 'omar']],
+  12: ['إنت بتحب ده؟', 'inta bitHibb da?', ['mario'], 'Do you like this?'],
+  13: ['لا، أنا مش بحب ___', 'la, ana mish baHibb ___', ['mario']],
+  14: ['عجبني جدًا', "'agabni giddan", ['mario'], 'I liked it a lot'],
+  16: ['نعم', "na'am", ['mario']],
+  17: ['لا', 'la', ['mario']],
+  18: ['حلو / كويس / تمام', 'hilw / kwayyis / tamaam', ['omar']],
+  19: ['وحش', 'wihish', ['karim', 'omar']],
+  20: ['إحنا صحاب', 'ihna suhaab', ['omar'], "We're friends"],
+  21: ['اسمه ___', 'ismuh ___', ['karim'], 'His name is ___'],
+  22: ['إنت ساكن فين؟', 'inta saakin fein?', ['mario', 'omar']],
+  23: ['أنا ساكن قريب من هنا', "ana saakin 'urayyib min hina", ['mario'], "I'm staying near here"],
+  24: ['أنا بدرس اللغة العربية في جامعة القاهرة', "ana badris il-lugha il-'arabiyya fi gam'it il-qahira", ['mario'], 'I study Arabic at Cairo University'],
+  25: ['شكرًا', 'shukran', ['mario']],
+  26: ['العفو', "il-'afw", ['karim']],
+  28: ['من فضلك', 'min fadlak', ['mario']],
+  29: ['أنا آسف', 'ana aasif', ['mario']],
+  30: ['بتقول اسمك إزاي؟', "bit'uul ismak izzaay?", ['karim', 'omar'], 'How do you say your name?'],
+  31: ['ممكن تتكلم أبطأ؟', "mumkin titkallim abta'?", ['ali']],
+  32: ['ده معناه إيه؟', "da ma'naah eih?", ['karim', 'omar']],
+  33: ['مبروك', 'mabruuk', ['karim', 'omar']],
+  34: ['أشوفك بعدين', "ashuufak ba'deen", ['karim', 'omar']],
+  36: ['أنا مش عارف / ما أعرفش', "ana mish 'aarif / ma a'rafsh", ['omar']],
+  39: ['مطعم', "mat'am", ['karim', 'omar', 'ali']],
+  40: ['قهوة أو كافيه', "'ahwa aw kafeih", ['ali']],
+  43: ['تحب تاخد إيه؟', 'tihibb taakhud eih?', ['omar']],
+  44: ['ممكن لو سمحت آخد…؟', 'mumkin law samaht aakhud…?', ['ali']],
+  46: ['ما ينفعش آخد حاجة فيها ___', "ma yinfa'sh aakhud haaga fiiha ___", ['karim', 'ali']],
+  47: ['عندي حساسية من ___', "'andi hasasiyya min ___", ['karim', 'omar', 'ali']],
+  48: ['عندي حساسية من ده', "'andi hasasiyya min da", ['omar']],
+  49: ['ده حلو قوي، شكرًا', "da hilw 'awi, shukran", ['karim'], 'This is really good, thanks'],
+  50: ['ممكن المنيو لو سمحت؟', 'mumkin il-menyu law samaht?', ['omar', 'ali']],
+  51: ['تنصحني بإيه؟', 'tinsahni bi-eih?', ['omar', 'ali']],
+  52: ['هو الطبق ده حرّاق؟', "huwwa it-taba' da harraa'?", ['ali']],
+  53: ['عندي حساسية من الأكل ده', "'andi hasasiyya min il-akl da", ['karim', 'omar'], "I'm allergic to this food"],
+  54: ['ممكن الشيك لو سمحت؟', 'mumkin ish-shek law samaht?', ['ali'], 'Can I have the check, please?'],
+  55: ['ممكن مية من فضلك؟', 'mumkin mayya min fadlak?', ['karim']],
+  56: ['بتاخدوا فيزا؟', 'btakhdu viza?', ['karim', 'omar']],
+  57: ['لو سمحت ممكن أحجز؟', 'law samaht mumkin ahgiz?', ['omar'], 'Can I make a reservation, please?'],
+  58: ['مياه معدنية', "mayaah ma'daniyya", ['karim'], 'Mineral water'],
+  59: ['ميّة غازية', 'mayya ghazya', ['karim', 'ali']],
+  60: ['ممكن مية من فضلك؟', 'mumkin mayya min fadlak?', ['karim', 'omar']],
+  61: ['ده فيه كحول؟', 'da fiih kuhuul?', ['karim', 'omar', 'ali']],
+  62: ['شاي', 'shaay', ['omar']],
+  63: ['عصير', "'asiir", ['karim', 'omar']],
+  64: ['فين المدخل؟', 'fein il-madkhal?', ['karim']],
+  65: ['بتقفل الساعة كام؟', "bit'fil is-saa'a kaam?", ['omar', 'karim', 'ali']],
+  66: ['فين الحمامات؟', 'fein il-hammamaat?', ['karim']],
+  67: ['مكانك فين؟', 'makaanak fein?', ['karim', 'ali'], 'Where are you?'],
+  69: ['فين التاكسي؟', 'fein it-taksi?', ['karim', 'ali']],
+  70: ['ممكن تشاورلي؟', 'mumkin tishawirli?', ['karim']],
+  71: ['تعرف الجامعة فين؟', "ti'raf il-gam'a fein?", ['omar', 'karim'], 'Do you know where the university is?'],
+  72: ['إزاي أوصل الجامعة؟', "izzaay awsal il-gam'a?", ['karim'], 'How do I get to the university?'],
+  75: ['ممكن تاخد لنا صورة من فضلك؟', 'mumkin taakhud lina suura min fadlak?', ['karim']],
+  76: ['بكام لو سمحت؟', 'bikaam law samaht?', ['karim'], 'How much is it, please?'],
+  78: ['عندك لون تاني أو مقاس تاني؟', "'andak loon taani aw ma'aas taani?", ['ali']],
+  80: ['أنا آخده', 'ana aakhdu', ['karim', 'ali']],
+  81: ['أنا بس بتفرج، شكرًا', 'ana bas batfarrag, shukran', ['omar']],
+  82: ['لا، معلش، غالي', "la, ma'lesh, ghaali", ['ali'], "No, sorry, it's too expensive"],
+  84: ['أقل', "a'all", ['karim']],
+  85: ['تاكسي', 'taksi', ['mario', 'karim']],
+  86: ['ممكن توديني الأهرامات؟', 'mumkin tiwaddiini il-ahramaat?', ['omar'], 'Can you take me to the Pyramids?'],
+  87: ['للأهرامات', 'lil-ahramaat', ['mario'], 'To the Pyramids'],
+  88: ['المتحف', 'il-mathaf', ['mario', 'karim', 'ali']],
+  89: ['للقلعة', "lil-'al'a", ['mario'], 'To the citadel'],
+  90: ['المسجد', 'il-masgid', ['mario', 'ali']],
+  91: ['المكان ده', 'il-makaan da', ['mario', 'karim'], 'This place'],
+  93: ['أنا عندي المكان على الخريطة', "ana 'andi il-makaan 'ala il-khariita", ['mario']],
+  95: ['من فضلك', 'min fadlak', ['mario', 'karim']],
+  96: ['شكرًا قوي', "shukran 'awi", ['mario']],
+  97: ['ممكن توقف هنا من فضلك', "mumkin tiwa'af hina min fadlak", ['mario']],
+  98: ['خش يمين', 'khushsh yimiin', ['mario', 'karim']],
+  99: ['خش شمال', 'khushsh shimaal', ['mario', 'karim']],
+  100: ['كمّل في وشّك', 'kammil fi wishshak', ['omar', 'karim']],
+  101: ['ممكن تديني الباقي من فضلك', "mumkin tiddiini il-baa'i min fadlak", ['mario']],
+  102: ['ممكن تشغل العداد لو سمحت؟', "mumkin tishaghghal il-'addaad law samaht?", ['omar', 'karim']],
+  103: ['ممكن ترجع؟', "mumkin tirga'?", ['karim']],
+  104: ['تقدر تاخد كام واحد معاك؟', "ti'dar taakhud kaam waahid ma'aak?", ['mario', 'omar']],
+  105: ['ممكن تستناني شوية', 'mumkin tistannaani shwayya', ['mario']],
+  106: ['هو ده المكان', 'huwwa da il-makaan', ['mario', 'ali']],
+  107: ['شكرًا على التوصيلة', "shukran 'ala it-tawsiila", ['mario', 'omar']],
+  108: ['تاخد كام وتوصلني هناك؟', 'taakhud kaam wi-tiwassalni hinaak?', ['mario']],
+  109: ['ده كتير أوي', "da kitiir 'awi", ['mario'], "That's way too much"],
+  110: ['لا، مش هقدر أروح هناك', "la, mish ha'dar aruuh hinaak", ['mario']],
+  111: ['لا، هي بتكلف أكتر من كده', 'la, hiyya bitkallif aktar min kida', ['omar']],
+  112: ['أنا أقدر آخد أربعة', "ana a'dar aakhud arba'a", ['omar'], 'I can take four people'],
+  113: ['ده هياخد وقت كتير جدًا', "da hayaakhud wa't kitiir giddan", ['mario'], "It'll take a long time"],
+  114: ['قريب جدًا', "'urayyib giddan", ['mario'], "It's very close"],
+  115: ['ده بعيد', "da ba'iid", ['omar', 'karim', 'ali'], "It's far"],
+  116: ['أقدر / مش قادر أقف هنا', "a'dar / mish 'aadir a'af hina", ['mario']],
+  117: ['هتكلفك ١٠٠ جنيه', 'hatkallifak miit gineih', ['ali'], "It'll cost you 100 pounds"],
+  118: ['إمتى الأوتوبيس اللي بعده؟', "imta il-otobiis illi ba'du?", ['mario']],
+  119: ['المحطة اللي جاية؟', 'il-mahatta illi gayya?', ['mario'], 'The next stop?'],
+  120: ['أنهي أوتوبيس يقدر ياخدني للمحطة دي؟', "anhi otobiis yi'dar yakhudni lil-mahatta di?", ['mario']],
+  121: ['بكام تذكرة المترو؟', 'bikaam tazkarit il-metro?', ['omar', 'karim'], 'How much is a metro ticket?'],
+  122: ['ممكن تساعدني أدور على التليفون؟', "mumkin tisa'idni adawwar 'ala it-tilifoon?", ['omar'], 'Can you help me find my phone?'],
+  123: ['فين الحمام؟', 'fein il-hammaam?', ['mario']],
+  124: ['لو سمحت / لا مؤاخذة', "law samaht / la mu'akhza", ['omar', 'karim']],
+  125: ['إنت مين؟', 'inta miin?', ['mario', 'karim']],
+  126: ['عندك كام سنة؟', "'andak kaam sana?", ['mario']],
+  127: ['أنا عايز مروحة', "ana 'aayiz marwaha", ['mario', 'omar']],
+  128: ['أنا محتاج فوطة', 'ana mihtaag fuuta', ['omar', 'karim']],
+  129: ['بطّل تكلمني', 'battal tikallimni', ['mario']],
+  131: ['ما تتكلمش معايا', "ma titkallimsh ma'aaya", ['omar', 'karim']],
+  132: ['ده فيه كحول؟', 'da fiih kuhuul?', ['omar']],
+  134: ['واحد، اتنين، تلاتة، أربعة، خمسة، ستة، سبعة، تمانية، تسعة، عشرة', "waahid, itneen, talaata, arba'a, khamsa, sitta, sab'a, tamanya, tis'a, 'ashara", ['mario']],
+  135: ['عشرة، عشرين، تلاتين، أربعين، خمسين، ستين، سبعين، تمانين، تسعين، مية', "'ashara, 'ishriin, talatiin, arba'iin, khamsiin, sittiin, sab'iin, tamaniin, tis'iin, miyya", ['mario']],
+  138: ['أنا هتصل بالبوليس', 'ana hattisil bil-buliis', ['mario']],
+  139: ['في واحد سرق (محفظتي/باسبوري/مفاتيحي/تليفوني)', "fii waahid sara' (mahfazti/basboori/mafatiihi/tilifooni)", ['mario']],
+  141: ['من فضلك اتصل بالإسعاف', "min fadlak ittisil bil-is'aaf", ['mario']],
+  142: ['فين القسم؟', "fein il-'ism?", ['omar', 'karim'], 'Where is the police station?'],
+  143: ['ممكن حد يساعدني؟', "mumkin hadd yisa'idni?", ['mario']],
+  144: ['ممكن تاخدني للمستشفى من فضلك', 'mumkin taakhudni lil-mustashfa min fadlak', ['mario']],
+  145: ['فين المستشفى؟', 'fein il-mustashfa?', ['omar', 'karim']],
+  146: ['أنا عايز أروح المستشفى', "ana 'aayiz aruuh il-mustashfa", ['omar', 'karim'], 'I want to go to the hospital'],
+  147: ['أنا محتاج المساعدة من فضلك', "ana mihtaag il-musa'da min fadlak", ['mario']],
+  148: ['أنا مش عارف أنا فين، ممكن تساعدني؟', "ana mish 'aarif ana fein, mumkin tisa'idni?", ['mario', 'ali', 'omar'], "I don't know where I am, can you help me?"],
+  149: ['سيبني في حالي', 'sibni fi haali', ['omar', 'karim']],
+  150: ['محتاج دكتور', 'mihtaag doktoor', ['ali', 'omar', 'karim']],
+  151: ['أنا بيجيلي حساسية', 'ana biygiili hasasiyya', ['omar', 'karim'], "I'm having an allergic reaction"],
+  152: ['أنا عايز ميّة، عندك ميّة؟', "ana 'aayiz mayya, 'andak mayya?", ['mario']],
+};
+
+export function egyptianEntry(phraseNum: number): DialectEntry | undefined {
+  const row = EG[phraseNum];
+  if (!row) return undefined;
+  const [arabicScript, transliteration, voices, english] = row;
+  const n = String(phraseNum).padStart(3, '0');
+  const samples: VoiceSample[] = voices.map((voice) => ({
+    speaker: NAMES[voice],
+    folder: voice,
+    prefix: voice === 'mario' ? 'MC' : 'AOK',
+    phraseNum,
+    trackNum: 0,
+    audioUrl: `/audio/eg/${voice}/${n}.mp3`,
+  }));
+  return { dialectId: 'egyptian', name: 'Egyptian', english, arabicScript, transliteration, samples };
+}
+
+export const EGYPTIAN_PHRASE_NUMS = Object.keys(EG).map(Number);

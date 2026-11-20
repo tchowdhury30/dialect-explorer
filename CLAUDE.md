@@ -18,21 +18,35 @@ npm run lint         # ESLint warnings/errors
 
 - **Frontend:** React 18 + Vite + TypeScript + Tailwind + shadcn/ui + Framer Motion
 - **Mobile:** Expo + React Native (simpler, older version)
-- **Audio:** Supabase Storage (jordanian/ bucket, public, 970 mp3 files)
-- **Data:** Supabase (free tier, currently ~122 MB audio)
-- **Dialects:** Egyptian (no entries yet — falls back to MSA), Levantine/Jordanian (4 native speakers with real audio)
+- **Audio:** Bundled static mp3s in `web-app/public/audio/` (~5 MB, same-origin,
+  service-worker cached). Supabase is no longer used — the old project was
+  paused/deleted and its host stopped resolving (Nov 2026).
+- **Dialects:** Levantine/Jordanian (Habib, Ghaina, Khalid, Salim), Egyptian/Cairene
+  (Mario, Karim, Omar, Ali — 129 of 148 phrases; the rest fall back to MSA with a notice)
 
 ## Project State
 
 - **Web app:** Redesigned UI with real 153-phrase Jordanian audio (Habib, Ghaina, Halad, Salim)
 - **Expo app:** Simpler prototype with placeholder data, not synced with web
-- **Audio:** 970 files on Supabase (1 failed during last upload: SHC_126_Track3.mp3)
-- **Egyptian:** No dialect entries yet. Selecting Egyptian shows Modern Standard
-  Arabic with an explicit "recordings in production" notice — the app must never
-  present Jordanian wording or audio as Egyptian. Drop Egyptian `DialectEntry`
-  objects into `data/phrases.ts` and flip `audio: 'available'` in
-  `lib/dialects.ts` when the edited files land.
-- **Next:** Egyptian phrase text + audio; offline audio caching
+- **Audio pipeline:** raw takes live in `Audios/` (gitignored; Drive download).
+  `scripts/audio-sources.json` maps each app clip → raw take(s);
+  `node scripts/build-audio.mjs` trims silence, loudness-normalises, joins
+  multi-take clips (counting) and writes `web-app/public/audio/{jo,eg}/<speaker>/<NNN>.mp3`.
+  A source can be `{file, from, to}` to cut a span out of a long uncut session.
+  Trimming is relative to each clip's own peak (a fixed gate ate soft onsets);
+  loudness is two-pass linear. Commit the built mp3s. `--force` rebuilds all.
+- **Egyptian:** `data/egyptian.ts` — wording drafted from Whisper transcripts of
+  the takes themselves, NOT yet native-speaker reviewed. Each phrase lists only
+  the voices whose take says exactly the wording shown.
+  - Mario: `Audios/Mario/` — sets are "English prompt take, then Egyptian take(s)".
+  - Karim, Omar, Ali: `Audios/MULTI/Ali, Omar, Karim /` — long uncut sessions
+    (prompt, then each speaker in turn). Split on silence, transcribed per
+    utterance, speakers identified with SpeechBrain ECAPA against their recorded
+    bios (14/14 on held-out bio clips), takes hand-picked; the chosen spans are
+    the `{file, from, to}` entries in audio-sources.json. `Extra.wav` is them
+    talking about the dialect in English (Culture-tab material, unused).
+  - Never present Jordanian wording or audio as Egyptian.
+- **Next:** native review of Egyptian text; Mario's portrait; speaker bios (recorded in `Ali, Omar, Karim Bios_.wav`)
 
 ## Design Direction
 
@@ -73,7 +87,8 @@ web-app/
                     /assets/*=cache-first (content-hashed), mp3=cache-first
                     (capped). Bump VERSION to purge caches on next visit.
     components/SpeakerAvatar.tsx  Deterministic geometric avatar per speaker name
-    data/phrases.ts    153 phrases; each carries DialectEntry[] keyed by dialectId
+    data/phrases.ts    148 phrases; each carries DialectEntry[] keyed by dialectId
+    data/egyptian.ts   Egyptian entries (Mario), merged into phrases.ts
     lib/dialects.ts    DIALECTS registry — single source of truth for a dialect's
                        name, flag, region, and audio status. Add a dialect here
                        plus a 5-line accent block in index.css.
@@ -81,15 +96,13 @@ web-app/
     lib/phrase.ts      entryFor / viewFor — MSA fallback when a dialect has no entry
     lib/storage.ts     User state only (bookmarks, view counts, folders), keyed
                        by phrase id; migrates the old whole-corpus blob once
-    lib/supabase.ts    Supabase client + getAudioUrl()
     types/index.ts     Phrase, DialectEntry, VoiceSample, PhraseState, Category
     components/ui/     Unused shadcn dump — nothing imports it, not bundled
-  .env              VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY (add to .env.local for dev)
   package.json      eslint, typescript, vite scripts added in this session
 
 expo-app/          Simpler mobile version (older, not synced)
-Audios/             970 mp3 files locally (Habib Ghaina, Halad Salim folders)
-audio-manifest.json Whisper transcriptions of all audio
+Audios/             raw takes (Habib Ghaina, Halad Salim, Mario) — gitignored
+scripts/            audio-sources.json + build-audio.mjs (see Audio pipeline)
 ```
 
 ## Commands
@@ -103,11 +116,8 @@ npm run build         # Production build → build/
 npm run typecheck     # tsc --noEmit, catches TS errors
 npm run lint          # ESLint, catches bugs + purity issues
 
-# Supabase audio re-upload (if needed)
-cd ..
-SUPABASE_URL=https://wfxjcjvjfeppsbxvdlkn.supabase.co \
-SUPABASE_SERVICE_KEY=<service-key> \
-node upload-audio.mjs
+# Rebuild audio after changing scripts/audio-sources.json (needs ffmpeg)
+cd .. && node scripts/build-audio.mjs
 ```
 
 ## AI Tools & Skills (from "my ai tools" notebook)
@@ -161,8 +171,8 @@ nlm report create eg-ux && nlm download report eg-ux
 
 ## Known Issues
 
-- **SHC_126_Track3.mp3** failed during upload (Gateway Timeout) — re-upload if needed
-- **Egyptian audio** — text-only until audio arrives from researcher
+- **Egyptian wording** — machine-drafted, needs a native speaker pass
+- **HGC_05_Track 1–6** are uncut 9.5-minute session recordings (phrase 5 is not in the app)
 - **Expo app** — out of sync with web app, simpler version
 - **Mobile responsive** — web app uses `max-w-md mx-auto`, Expo needed for real mobile
 
@@ -170,13 +180,11 @@ nlm report create eg-ux && nlm download report eg-ux
 
 Share only:
 - `web-app/` folder
-- `.env` with anon key (NOT service key)
 - This CLAUDE.md
 
-Audio files are on Supabase, no need to copy `Audios/` locally.
+Built audio is in the repo; `Audios/` is only needed to rebuild clips.
 
 ## Links
 
-- Supabase: https://wfxjcjvjfeppsbxvdlkn.supabase.co (project "sook")
 - NotebookLM research: "my ai tools" notebook in your NotebookLM account
 - Figma designs: embedded in web-app/src/assets/ (from Figma export)

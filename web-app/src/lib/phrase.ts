@@ -13,6 +13,10 @@ export function entryFor(phrase: Phrase, dialect: DialectId): DialectEntry | und
  * belonged to the selected one.
  */
 export interface PhraseView {
+  /** English for what is shown — the dialect's own meaning if it differs. */
+  english: string;
+  /** True when the dialect line was localised away from Phrase.english. */
+  isLocalised: boolean;
   arabic: string;
   transliteration: string;
   /** True when we are showing MSA because the dialect has no entry. */
@@ -26,6 +30,8 @@ export function viewFor(phrase: Phrase, dialect: DialectId): PhraseView {
   const entry = entryFor(phrase, dialect);
   if (entry) {
     return {
+      english: entry.english ?? phrase.english,
+      isLocalised: Boolean(entry.english && entry.english !== phrase.english),
       arabic: entry.arabicScript,
       transliteration: entry.transliteration,
       isFallback: false,
@@ -34,6 +40,8 @@ export function viewFor(phrase: Phrase, dialect: DialectId): PhraseView {
     };
   }
   return {
+    english: phrase.english,
+    isLocalised: false,
     arabic: phrase.fushaArabic,
     transliteration: phrase.fushaTransliteration,
     isFallback: true,
@@ -45,6 +53,7 @@ export function matchesQuery(phrase: Phrase, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return false;
   if (phrase.english.toLowerCase().includes(q)) return true;
+  if (phrase.dialects.some((d) => d.english?.toLowerCase().includes(q))) return true;
   if (phrase.fushaArabic.includes(query.trim())) return true;
   if (phrase.fushaTransliteration.toLowerCase().includes(q)) return true;
   return phrase.dialects.some(

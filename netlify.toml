@@ -18,6 +18,26 @@
   to = "/index.html"
   status = 200
 
+# Security headers on every response. style-src needs 'unsafe-inline' because
+# Framer Motion writes inline styles; scripts stay 'self'-only (the pre-paint
+# theme script lives in /theme-init.js for exactly this reason).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self'; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "DENY"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+# Recordings are rebuilt rarely and never edited in place under the same name
+# without a deploy; a week keeps repeat plays instant.
+[[headers]]
+  for = "/audio/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
 # Vite content-hashes these filenames, so a cache hit can never be stale.
 [[headers]]
   for = "/assets/*"

@@ -16,8 +16,5 @@
   "bugs": {
     "url": "https://github.com/tchowdhury30/dialect-explorer/issues"
   },
-  "homepage": "https://github.com/tchowdhury30/dialect-explorer#readme",
-  "dependencies": {
-    "@supabase/supabase-js": "^2.107.0"
-  }
+  "homepage": "https://github.com/tchowdhury30/dialect-explorer#readme"
 }

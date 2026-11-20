@@ -15,19 +15,19 @@
  * Bump VERSION to retire every old cache on the next visit.
  */
 
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL = `shell-${VERSION}`;
 const ASSETS = `assets-${VERSION}`;
 const AUDIO = `audio-${VERSION}`;
 const FONTS = `fonts-${VERSION}`;
 
-const AUDIO_MAX_ENTRIES = 220;
+const AUDIO_MAX_ENTRIES = 600;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(SHELL)
-      .then((cache) => cache.addAll(['/', '/manifest.webmanifest']))
+      .then((cache) => cache.addAll(['/', '/manifest.webmanifest', '/theme-init.js']))
       .then(() => self.skipWaiting())
       .catch(() => self.skipWaiting())
   );
@@ -92,13 +92,21 @@ self.addEventListener('fetch', (event) => {
   if (url.origin === self.location.origin) {
     if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/icons/')) {
       event.respondWith(cacheFirst(request, ASSETS));
-    }
-    return;
-  }
-
-  if (url.hostname.endsWith('supabase.co') && url.pathname.endsWith('.mp3')) {
-    // Only whole-file fetches; a partial response would poison the cache.
-    if (!request.headers.has('range')) {
+    } else if (url.pathname === '/theme-init.js') {
+      // Not content-hashed: network first so edits roll out, cache offline.
+      event.respondWith(
+        fetch(request)
+          .then((res) => {
+            if (res.ok) {
+              const copy = res.clone();
+              caches.open(SHELL).then((c) => c.put(request, copy));
+            }
+            return res;
+          })
+          .catch(() => caches.match(request))
+      );
+    } else if (url.pathname.startsWith('/audio/') && !request.headers.has('range')) {
+      // Only whole-file fetches; a partial response would poison the cache.
       event.respondWith(cacheFirst(request, AUDIO, { max: AUDIO_MAX_ENTRIES }));
     }
     return;

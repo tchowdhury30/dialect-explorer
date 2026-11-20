@@ -25,17 +25,28 @@ export const SPEAKERS: Speaker[] = [
   { id: 'khalid', name: 'Khalid', dialectId: 'levantine', photo: '/speakers/khalid.jpg', nameConfirmed: true },
   { id: 'salim', name: 'Salim', dialectId: 'levantine', photo: '/speakers/salim.jpg', nameConfirmed: true },
 
-  // Egyptian — portraits in hand, recordings still being edited, names to confirm.
-  { id: 'eg1', name: 'Egyptian voice', dialectId: 'egyptian', photo: '/speakers/egypt1.jpg', nameConfirmed: false },
-  { id: 'eg2', name: 'Egyptian voice', dialectId: 'egyptian', photo: '/speakers/egypt2.jpg', nameConfirmed: false },
-  { id: 'eg3', name: 'Egyptian voice', dialectId: 'egyptian', photo: '/speakers/egypt3.jpg', nameConfirmed: false },
+  // Egyptian. Karim, Omar and Ali recorded together (all CS students in
+  // Cairo). Mario has no portrait yet and renders the generated motif.
+  { id: 'mario', name: 'Mario', dialectId: 'egyptian', nameConfirmed: true },
+  { id: 'karim', name: 'Karim', dialectId: 'egyptian', photo: '/speakers/karim.jpg', nameConfirmed: true },
+  { id: 'omar', name: 'Omar', dialectId: 'egyptian', photo: '/speakers/omar.jpg', nameConfirmed: true },
+  { id: 'ali', name: 'Ali', dialectId: 'egyptian', photo: '/speakers/ali.jpg', nameConfirmed: true },
 ];
 
 export function speakersFor(dialect: DialectId): Speaker[] {
   return SPEAKERS.filter((s) => s.dialectId === dialect);
 }
 
+/** Speakers we can name — the ones that actually have recordings. */
+export function voicesFor(dialect: DialectId): Speaker[] {
+  return speakersFor(dialect).filter((s) => s.nameConfirmed);
+}
+
 /** Portrait for a speaker who appears on a phrase, if we have one. */
 export function photoFor(name: SpeakerName | string): string | undefined {
   return SPEAKERS.find((s) => s.name === name)?.photo;
+}
+
+export function voiceCount(n: number): string {
+  return n === 1 ? 'One voice' : `${n} voices`;
 }

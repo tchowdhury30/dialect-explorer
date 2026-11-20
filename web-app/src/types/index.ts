@@ -1,5 +1,13 @@
-export type SpeakerName = 'Habib' | 'Ghaina' | 'Khalid' | 'Salim';
-export type SpeakerFolder = 'habib-ghaina' | 'halad-salim';
+export type SpeakerName =
+  | 'Habib'
+  | 'Ghaina'
+  | 'Khalid'
+  | 'Salim'
+  | 'Mario'
+  | 'Karim'
+  | 'Omar'
+  | 'Ali';
+export type SpeakerFolder = 'habib-ghaina' | 'halad-salim' | 'mario' | 'karim' | 'omar' | 'ali';
 
 /** Stable dialect keys. Also used as the `data-dialect` value on <html>. */
 export type DialectId = 'egyptian' | 'levantine';
@@ -25,6 +33,9 @@ export interface DialectEntry {
   dialectId: DialectId;
   /** Regional name shown to the user, e.g. "Jordanian". */
   name: string;
+  /** What this dialect's line actually means, when it was localised or
+      reworded and no longer matches Phrase.english. */
+  english?: string;
   arabicScript: string;
   transliteration: string;
   samples: VoiceSample[];
