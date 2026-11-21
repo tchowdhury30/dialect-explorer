@@ -4,7 +4,7 @@ import { Bisbis } from './art/Bisbis';
 /** A friendly section heading above a list of cards. */
 export function ListHead({ title, meta }: { title: string; meta?: string }) {
   return (
-    <div className="flex items-baseline justify-between gap-3 px-5 pb-2.5 pt-5">
+    <div className="flex items-baseline justify-between gap-3 px-5 pb-2.5 pt-5 lg:mx-auto lg:max-w-7xl lg:px-10">
       <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>
       {meta && <span className="text-xs font-semibold text-ink-soft">{meta}</span>}
     </div>

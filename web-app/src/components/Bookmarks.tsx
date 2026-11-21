@@ -56,7 +56,7 @@ export function Bookmarks({
 
   return (
     <div className="flex h-full flex-col">
-      <header className="px-4 pb-2 pt-5">
+      <header className="px-4 pb-2 pt-5 lg:mx-auto lg:w-full lg:max-w-7xl lg:px-10">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-display text-2xl font-semibold text-ink">Saved</h2>
           <span className="text-xs font-semibold text-ink-soft">

@@ -70,7 +70,7 @@ export function Explore({
     <div className="scroll-clean h-full overflow-y-auto">
       <DuskHero dialect={dialect} onDialectChange={onDialectChange} onOpenSettings={onOpenSettings} />
 
-      <div className="relative -mt-5 rounded-t-[1.75rem] bg-surface px-4 pb-6 pt-5">
+      <div className="relative -mt-5 rounded-t-[1.75rem] bg-surface px-4 pb-6 pt-5 lg:mx-auto lg:max-w-7xl lg:px-10 lg:pt-8">
         <PhraseOfTheDay phrases={phrases} dialect={dialect} onOpen={onOpenPhrase} />
 
         {config.audio !== 'available' && (
@@ -84,7 +84,7 @@ export function Explore({
           <span className="text-xs font-semibold text-ink-soft">{phrases.length} phrases</span>
         </div>
 
-        <div className="grid grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4 lg:gap-4">
           {categoriesWithCounts.map((category, i) => (
             <motion.button
               key={category.id}
@@ -94,8 +94,8 @@ export function Explore({
               transition={{ type: 'spring', stiffness: 420, damping: 24, delay: 0.15 + i * 0.05 }}
               onClick={() => setSelectedCategory(category.id)}
               style={themeVars(category.id)}
-              className={`press flex items-center gap-2.5 rounded-card bg-card py-2.5 pl-2 pr-3 text-left shadow-card ${
-                i === categoriesWithCounts.length - 1 && categoriesWithCounts.length % 2 === 1 ? 'col-span-2' : ''
+              className={`press flex items-center gap-2.5 rounded-card bg-card py-2.5 pl-2 pr-3 text-left shadow-card lg:py-5 lg:pl-4 ${
+                i === categoriesWithCounts.length - 1 && categoriesWithCounts.length % 2 === 1 ? 'col-span-2 lg:col-span-1' : ''
               }`}
             >
               <CategorySticker category={category.id} className="h-11 w-11 shrink-0" />
@@ -228,7 +228,7 @@ function CategoryPage({
         </button>
       </div>
 
-      <div className="relative -mt-6 rounded-t-[1.75rem] bg-cat-soft px-5 pb-3 pt-5">
+      <div className="relative -mt-6 rounded-t-[1.75rem] bg-cat-soft px-5 pb-3 pt-5 lg:mx-auto lg:max-w-7xl lg:px-10">
         <Bisbis pose="peek" talking={status === 'playing'} className="absolute -top-[3.4rem] right-5 w-20" />
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
           <p lang="ar" className="font-kufi text-base text-cat-ink">

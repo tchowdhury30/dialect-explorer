@@ -1,10 +1,9 @@
-import { motion } from 'motion/react';
-import { ChevronDown, Settings as SettingsIcon } from 'lucide-react';
+import { Settings as SettingsIcon } from 'lucide-react';
 import { DialectId } from '../../types';
-import { DIALECTS, DIALECT_IDS } from '../../lib/dialects';
+import { DIALECTS } from '../../lib/dialects';
 import { BRAND } from '../../lib/brand';
 import { useAudio } from '../../lib/audio';
-import { DialectFlag } from '../icons/DialectFlag';
+import { DialectSelect } from '../DialectSelect';
 import { Bisbis } from './Bisbis';
 import { Lantern, LanternString, Stalls, Stars } from './Souk';
 
@@ -24,7 +23,6 @@ export function DuskHero({
 }) {
   const { status } = useAudio();
   const config = DIALECTS[dialect];
-  const next = DIALECT_IDS[(DIALECT_IDS.indexOf(dialect) + 1) % DIALECT_IDS.length];
 
   return (
     <header
@@ -59,17 +57,7 @@ export function DuskHero({
         <p className="mt-1 font-display text-xs font-semibold uppercase tracking-[0.1em] text-white/85">
           {BRAND.name}
         </p>
-        <motion.button
-          type="button"
-          whileTap={{ scale: 0.94 }}
-          onClick={() => onDialectChange(next)}
-          aria-label={`Dialect: ${config.name} Arabic. Tap to switch to ${DIALECTS[next].name}.`}
-          className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/90 py-1.5 pl-2 pr-3 font-display text-sm font-semibold text-ink shadow-[0_3px_0_rgba(0,0,0,0.2)]"
-        >
-          <DialectFlag dialect={dialect} size={20} />
-          {config.name}
-          <ChevronDown className="h-3.5 w-3.5 text-brand" aria-hidden="true" />
-        </motion.button>
+        <DialectSelect dialect={dialect} onChange={onDialectChange} className="mt-3" />
       </div>
 
       <Stalls className="absolute bottom-0 left-0 h-24 w-full" />

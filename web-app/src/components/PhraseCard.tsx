@@ -89,5 +89,5 @@ export function PhraseCard({
 
 /** The run of cards. */
 export function PhraseList({ children }: { children: ReactNode }) {
-  return <div className="flex flex-col gap-3 px-4 pb-6">{children}</div>;
+  return <div className="flex flex-col gap-3 px-4 pb-6 lg:mx-auto lg:grid lg:max-w-7xl lg:grid-cols-2 lg:gap-4 lg:px-10 xl:grid-cols-3">{children}</div>;
 }
