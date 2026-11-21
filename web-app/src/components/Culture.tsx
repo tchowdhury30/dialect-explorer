@@ -129,7 +129,7 @@ export function Culture({ dialect }: { dialect: DialectId }) {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="px-4 pb-2 pt-5">
+      <header className="px-4 pb-2 pt-5 lg:mx-auto lg:w-full lg:max-w-7xl lg:px-10">
         <h2 className="font-display text-2xl font-semibold text-ink">Culture</h2>
         <p className="mt-0.5 text-sm text-ink-muted">
           Context the phrasebook can't give you
@@ -154,8 +154,8 @@ export function Culture({ dialect }: { dialect: DialectId }) {
         </div>
       </header>
 
-      <div className="scroll-clean flex-1 overflow-y-auto px-4 pb-8 pt-2">
-        <div className="space-y-4">
+      <div className="scroll-clean flex-1 overflow-y-auto px-4 pb-8 pt-2 lg:mx-auto lg:w-full lg:max-w-7xl lg:px-10">
+        <div className="space-y-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0 xl:grid-cols-3">
           {posts.map((post, i) => {
             const isOpen = expanded === post.id;
             const isLiked = liked.has(post.id);

@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
-import { Search as SearchIcon, WifiOff, X } from 'lucide-react';
+import { Search as SearchIcon, X } from 'lucide-react';
 import { PhraseCard, PhraseList } from './PhraseCard';
 import { DialectId, Phrase, PhraseState } from '../types';
 import { matchesQuery } from '../lib/phrase';
@@ -22,19 +22,6 @@ export function Search({
   onToggleBookmark,
 }: SearchProps) {
   const [query, setQuery] = useState('');
-  const [isOnline, setIsOnline] = useState(() => navigator.onLine);
-
-  useEffect(() => {
-    const online = () => setIsOnline(true);
-    const offline = () => setIsOnline(false);
-    window.addEventListener('online', online);
-    window.addEventListener('offline', offline);
-    return () => {
-      window.removeEventListener('online', online);
-      window.removeEventListener('offline', offline);
-    };
-  }, []);
-
   const results = useMemo(
     () => (query.trim() ? phrases.filter((p) => matchesQuery(p, query)) : []),
     [phrases, query]
@@ -56,7 +43,7 @@ export function Search({
 
   return (
     <div className="flex h-full flex-col">
-      <header className="px-4 pb-2 pt-5">
+      <header className="px-4 pb-2 pt-5 lg:mx-auto lg:w-full lg:max-w-7xl lg:px-10">
         <h2 className="mb-3 font-display text-2xl font-semibold text-ink">
           Search
         </h2>
@@ -88,12 +75,6 @@ export function Search({
           )}
         </div>
 
-        {!isOnline && (
-          <p className="mt-3 flex items-center gap-2 rounded-2xl bg-brand-soft px-3 py-2 text-xs font-semibold text-ink-muted">
-            <WifiOff className="h-3.5 w-3.5 shrink-0 text-brand" aria-hidden="true" />
-            You're offline. Phrases still work, and so does audio you've already played.
-          </p>
-        )}
       </header>
 
       <div className="scroll-clean flex-1 overflow-y-auto">
@@ -119,7 +100,7 @@ export function Search({
           ) : (
             <EmptyState
               title="Find a phrase fast"
-              body="Type in English, Arabic script, or transliteration — all three are searched."
+              body="Type in English, Arabic script, or transliteration."
             />
           )
         ) : results.length === 0 ? (

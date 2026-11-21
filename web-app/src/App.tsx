@@ -11,13 +11,10 @@ import { PhraseDetail } from './components/PhraseDetail';
 import { MiniBar } from './components/MiniBar';
 import { ContactSheet } from './components/Contact';
 import { Logo } from './components/Logo';
-import { Bisbis } from './components/art/Bisbis';
 import { Compass, Heart, Search as SearchGlyph, Sparkles } from 'lucide-react';
-import { PreviewSizer, usePhoneSize } from './components/PreviewSizer';
 
 import { phrases as PHRASES } from './data/phrases';
 import { DIALECTS, applyDocumentTheme, dialectFromLabel } from './lib/dialects';
-import { SPEAKERS } from './lib/speakers';
 import {
   AppSettings,
   EMPTY_PHRASE_STATE,
@@ -114,38 +111,6 @@ export default function App() {
     [openPhraseId]
   );
 
-  const { size, setSize } = usePhoneSize();
-
-  /** Drag the panel's corner to resize. Desktop only — the handle is hidden
-      below lg, where the app fills the viewport anyway. */
-  const startResize = useCallback(
-    (e: React.PointerEvent) => {
-      e.preventDefault();
-      const handle = e.currentTarget as Element;
-      handle.setPointerCapture?.(e.pointerId);
-      const x0 = e.clientX;
-      const y0 = e.clientY;
-      const w0 = size.w;
-      const h0 = size.h;
-
-      const onMove = (ev: PointerEvent) =>
-        setSize({ w: w0 + (ev.clientX - x0), h: h0 + (ev.clientY - y0) });
-      // pointercancel too: a drag the OS interrupts must not stay attached.
-      const onUp = () => {
-        window.removeEventListener('pointermove', onMove);
-        window.removeEventListener('pointerup', onUp);
-        window.removeEventListener('pointercancel', onUp);
-        document.body.style.userSelect = '';
-      };
-
-      document.body.style.userSelect = 'none';
-      window.addEventListener('pointermove', onMove);
-      window.addEventListener('pointerup', onUp);
-      window.addEventListener('pointercancel', onUp);
-    },
-    [size, setSize]
-  );
-
   if (!settings.hasCompletedOnboarding) {
     return (
       <OnboardingDialog
@@ -169,62 +134,8 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-dvh bg-surface lg:grid lg:place-items-center lg:p-10">
-      <div className="lg:flex lg:items-center lg:gap-16">
-        {/* On a laptop the phone column alone reads as a broken page, so the
-            surrounding space carries the edition statement instead. */}
-        <aside className="hidden max-w-sm lg:block">
-          <div className="flex items-end gap-4">
-            <Logo size="lg" />
-            <Bisbis pose="sit" className="w-24" />
-          </div>
-          <h2 className="mt-8 text-3xl font-semibold leading-tight text-ink">
-            Everyday Arabic, recorded by the people who speak it
-          </h2>
-          <p className="mt-4 text-base leading-relaxed text-ink-muted">
-            Not synthesised, not textbook. {PHRASES.length} phrases a traveller actually needs,
-            in Egyptian and Jordanian Arabic, from real voices in Cairo and Amman.
-          </p>
-          <dl className="mt-9 flex gap-9 border-t-2 border-dashed border-line pt-5">
-            {[
-              ['Phrases', String(PHRASES.length)],
-              ['Voices', String(SPEAKERS.filter((s) => s.nameConfirmed).length)],
-              ['Dialects', '2'],
-            ].map(([term, value]) => (
-              <div key={term}>
-                <dt className="text-[0.59375rem] uppercase tracking-[0.16em] text-ink-soft">
-                  {term}
-                </dt>
-                <dd className="mt-1.5 font-display text-2xl font-semibold tabular-nums text-ink">{value}</dd>
-              </div>
-            ))}
-          </dl>
-
-          <PreviewSizer size={size} onChange={setSize} />
-        </aside>
-
-        {/* Fixed on mobile (the app owns the viewport); on desktop the panel
-            takes its dimensions from the preview controls. */}
-        <div
-          style={{ '--pw': `${size.w}px`, '--ph': `${size.h}px` } as React.CSSProperties}
-          className="relative flex h-dvh w-full flex-col overflow-hidden bg-surface lg:h-[var(--ph)] lg:max-h-[92vh] lg:w-[var(--pw)] lg:rounded-[1.25rem] lg:border lg:border-line lg:shadow-lift"
-        >
-          <button
-            type="button"
-            onPointerDown={startResize}
-            aria-label={`Resize preview — currently ${size.w} by ${size.h} pixels`}
-            className="absolute -bottom-1 -right-1 z-30 hidden h-6 w-6 cursor-nwse-resize items-center justify-center rounded-full border border-line bg-card text-ink-soft transition-colors hover:border-brand hover:text-brand lg:flex"
-          >
-            <svg width="9" height="9" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path
-                d="M9 1 1 9M9 5.5 5.5 9"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-              />
-            </svg>
-          </button>
-
+    <div className="min-h-dvh bg-surface">
+        <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-surface">
           {showSettings ? (
             <Settings
               dialect={dialect}
@@ -280,8 +191,9 @@ export default function App() {
 
               <nav
                 aria-label="Sections"
-                className="safe-bottom relative z-20 mx-3 mb-3 flex items-center justify-around rounded-[1.375rem] bg-card py-1.5 shadow-float"
+                className="safe-bottom relative z-20 mx-3 mb-3 flex items-center justify-around rounded-[1.375rem] bg-card py-1.5 shadow-float lg:order-first lg:mx-0 lg:mb-0 lg:justify-start lg:gap-3 lg:rounded-none lg:border-b lg:border-line lg:px-8 lg:py-2"
               >
+                <div className="mr-8 hidden lg:block"><Logo size="sm" /></div>
                 {TABS.map(({ id, label, icon: Icon }) => {
                   const on = activeTab === id;
                   return (
@@ -290,7 +202,7 @@ export default function App() {
                       type="button"
                       onClick={() => setActiveTab(id)}
                       aria-current={on ? 'page' : undefined}
-                      className={`flex w-16 flex-col items-center gap-0.5 rounded-2xl py-1.5 font-display text-[0.6875rem] font-semibold transition-colors ${
+                      className={`flex w-16 flex-col items-center gap-0.5 rounded-2xl py-1.5 font-display text-[0.6875rem] font-semibold transition-colors lg:w-auto lg:flex-row lg:gap-2 lg:px-4 lg:py-2 lg:text-sm ${
                         on ? 'text-brand' : 'text-ink-soft hover:text-ink-muted'
                       }`}
                     >
@@ -310,7 +222,6 @@ export default function App() {
             </>
           )}
         </div>
-      </div>
 
       <AnimatePresence>
         {activePhrase && (

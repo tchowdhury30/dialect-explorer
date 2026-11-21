@@ -3,13 +3,10 @@ import {
   Check,
   ChevronLeft,
   Clock,
-  Download,
-  Globe,
   Turtle,
   Monitor,
   Moon,
   Sun,
-  User,
 } from 'lucide-react';
 import { DialectId, ThemePreference } from '../types';
 import { DIALECTS, DIALECT_IDS } from '../lib/dialects';
@@ -33,11 +30,6 @@ const THEMES: Array<{ id: ThemePreference; label: string; icon: typeof Sun }> = 
   { id: 'light', label: 'Light', icon: Sun },
   { id: 'dark', label: 'Dark', icon: Moon },
   { id: 'system', label: 'System', icon: Monitor },
-];
-
-const UPCOMING = [
-  { icon: User, title: 'Profile', desc: 'Track what you have practised' },
-  { icon: Globe, title: 'App language', desc: 'Interface beyond English' },
 ];
 
 export function Settings({
@@ -66,7 +58,7 @@ export function Settings({
         <h2 className="font-display text-lg font-semibold">Settings</h2>
       </header>
 
-      <div className="scroll-clean flex-1 space-y-6 overflow-y-auto p-4">
+      <div className="scroll-clean flex-1 space-y-6 overflow-y-auto p-4 lg:mx-auto lg:w-full lg:max-w-4xl lg:p-8">
         <Section title="Dialect">
           <div className="space-y-2">
             {DIALECT_IDS.map((id) => {
@@ -214,55 +206,8 @@ export function Settings({
           </div>
         </Section>
 
-        <Section title="Offline">
-          <p className="mb-2 px-1 text-xs leading-relaxed text-ink-soft">
-            Phrases, transliterations, and bookmarks work without a connection, and any recording
-            you have already played is kept for offline replay. Downloading a whole dialect up
-            front is still to come.
-          </p>
-
-          <div className="divide-y divide-line overflow-hidden rounded-card bg-card shadow-card">
-            {DIALECT_IDS.map((id) => {
-              const config = DIALECTS[id];
-              return (
-                <div key={id} className="flex items-center gap-3 p-3.5">
-                  <DialectFlag dialect={id} size={22} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-sm font-medium text-ink">
-                      {config.name} audio pack
-                    </span>
-                    <span className="block text-xs text-ink-soft">
-                      {config.audio === 'available'
-                        ? 'Listen without a connection'
-                        : 'Available once recordings ship'}
-                    </span>
-                  </span>
-                  <SoonButton label={`Download ${config.name} audio pack`} />
-                </div>
-              );
-            })}
-          </div>
-        </Section>
-
         <Section title="Get involved">
           <GrowCard onOpen={onOpenContact} />
-        </Section>
-
-        <Section title="Also coming">
-          <div className="divide-y divide-line overflow-hidden rounded-card bg-card shadow-card">
-            {UPCOMING.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="flex items-center gap-3 p-3.5">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface">
-                  <Icon className="h-4 w-4 text-ink-soft" aria-hidden="true" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-medium text-ink">{title}</span>
-                  <span className="block text-xs text-ink-soft">{desc}</span>
-                </span>
-                <SoonPill />
-              </div>
-            ))}
-          </div>
         </Section>
 
         <p className="pb-2 text-center text-xs text-ink-soft">
@@ -270,31 +215,6 @@ export function Settings({
         </p>
       </div>
     </div>
-  );
-}
-
-/** Visible but inert, and labelled as such — an affordance that promises
-    nothing it cannot do yet. */
-function SoonPill() {
-  return (
-    <span className="shrink-0 rounded-full bg-surface px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wider text-ink-soft">
-      Soon
-    </span>
-  );
-}
-
-function SoonButton({ label }: { label: string }) {
-  return (
-    <button
-      type="button"
-      disabled
-      aria-label={`${label} — coming soon`}
-      title="Coming soon"
-      className="flex shrink-0 items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-ink-soft opacity-70"
-    >
-      <Download className="h-3.5 w-3.5" aria-hidden="true" />
-      Soon
-    </button>
   );
 }
 

@@ -1,10 +1,8 @@
-import { motion } from 'motion/react';
 import { Settings as SettingsIcon } from 'lucide-react';
 import { DialectId } from '../types';
-import { DIALECTS, DIALECT_IDS } from '../lib/dialects';
 import { BRAND } from '../lib/brand';
 import { useAudio } from '../lib/audio';
-import { DialectFlag } from './icons/DialectFlag';
+import { DialectSelect } from './DialectSelect';
 import { Bisbis } from './art/Bisbis';
 
 /** Slim dusk-coloured bar for tabs other than Home. */
@@ -18,8 +16,6 @@ export function MiniBar({
   onOpenSettings: () => void;
 }) {
   const { status } = useAudio();
-  const config = DIALECTS[dialect];
-  const next = DIALECT_IDS[(DIALECT_IDS.indexOf(dialect) + 1) % DIALECT_IDS.length];
 
   return (
     <header
@@ -30,16 +26,7 @@ export function MiniBar({
       <span lang="ar" dir="rtl" className="font-kufi text-xl leading-none text-white">
         {BRAND.arabic}
       </span>
-      <motion.button
-        type="button"
-        whileTap={{ scale: 0.94 }}
-        onClick={() => onDialectChange(next)}
-        aria-label={`Dialect: ${config.name} Arabic. Tap to switch to ${DIALECTS[next].name}.`}
-        className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-white/90 py-1 pl-1.5 pr-2.5 font-display text-xs font-semibold text-ink"
-      >
-        <DialectFlag dialect={dialect} size={16} />
-        {config.name}
-      </motion.button>
+      <DialectSelect dialect={dialect} onChange={onDialectChange} compact className="ml-auto" />
       <button
         type="button"
         onClick={onOpenSettings}
