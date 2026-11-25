@@ -141,9 +141,6 @@ export function Culture({ dialect }: { dialect: DialectId }) {
     <div className="flex h-full flex-col">
       <header className="px-4 pb-2 pt-5 lg:mx-auto lg:w-full lg:max-w-7xl lg:px-10">
         <h2 className="font-display text-2xl font-semibold text-ink">Culture</h2>
-        <p className="mt-0.5 text-sm text-ink-muted">
-          Context the phrasebook can't give you
-        </p>
 
         <div className="mt-3.5 flex gap-1.5">
           {filters.map((f) => (
@@ -167,8 +164,7 @@ export function Culture({ dialect }: { dialect: DialectId }) {
       <div className="scroll-clean flex-1 overflow-y-auto px-4 pb-8 pt-2 lg:mx-auto lg:w-full lg:max-w-7xl lg:px-10">
         {speakers.length > 0 && (
           <section aria-labelledby="meet-speakers" className="mb-6">
-            <h3 id="meet-speakers" className="mb-1 font-display text-xl font-semibold text-ink">Meet the voices</h3>
-            <p className="mb-3 text-sm text-ink-muted">The people behind the recordings</p>
+            <h3 id="meet-speakers" className="mb-3 font-display text-xl font-semibold text-ink">Meet the voices</h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {speakers.map((speaker) => (
                 <SpeakerCard key={speaker.id} speaker={speaker} />
