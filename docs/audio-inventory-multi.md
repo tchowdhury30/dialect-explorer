@@ -6,7 +6,7 @@ The supplied MULTI ZIP contains 47 WAVs (181.7 minutes). The checked-in app alre
 
 - Jordanian: Ghaina's “Do you have a map?”, Habib and Khalid's “Where is the police station?”, Khalid's “Do you know where ___ is?”, and Habib's help and hospital requests.
 - Egyptian: Mario's “Where do you work?” and “Can you go back?” Some of these recordings add words or give specific examples; their recorded variants are displayed next to the speaker's button.
-- Speaker introductions: Karim, Omar, Ali, Salim and Khalid. Their actual photos are used where available; cards without photos have no generated substitute.
+- Speaker introductions: Karim, Omar, Ali, Salim and Khalid. Culture only shows speakers with introduction audio, using their actual photos where available and no generated substitute.
 
 The new phrase clips were selected by comparing timed Arabic ASR against the phrase text and comparing voice embeddings against existing speaker recordings, including held-out references. Each selected excerpt was independently transcribed with two speech-recognition models. Speaker and wording matches are evidence-based but are not a substitute for native-speaker listening. The app does not display unverified automatic bio transcripts as fact.
 

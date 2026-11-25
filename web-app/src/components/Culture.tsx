@@ -120,7 +120,7 @@ export function Culture({ dialect }: { dialect: DialectId }) {
     () => (filter === 'all'
       ? [...speakersFor('egyptian'), ...speakersFor('levantine')]
       : speakersFor(filter)
-    ).filter((speaker) => speaker.nameConfirmed),
+    ).filter((speaker) => speaker.nameConfirmed && Boolean(speakerBios[speaker.id]?.audioUrl)),
     [filter]
   );
 
@@ -165,15 +165,17 @@ export function Culture({ dialect }: { dialect: DialectId }) {
       </header>
 
       <div className="scroll-clean flex-1 overflow-y-auto px-4 pb-8 pt-2 lg:mx-auto lg:w-full lg:max-w-7xl lg:px-10">
-        <section aria-labelledby="meet-speakers" className="mb-6">
-          <h3 id="meet-speakers" className="mb-1 font-display text-xl font-semibold text-ink">Meet the voices</h3>
-          <p className="mb-3 text-sm text-ink-muted">The people behind the recordings</p>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {speakers.map((speaker) => (
-              <SpeakerCard key={speaker.id} speaker={speaker} />
-            ))}
-          </div>
-        </section>
+        {speakers.length > 0 && (
+          <section aria-labelledby="meet-speakers" className="mb-6">
+            <h3 id="meet-speakers" className="mb-1 font-display text-xl font-semibold text-ink">Meet the voices</h3>
+            <p className="mb-3 text-sm text-ink-muted">The people behind the recordings</p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {speakers.map((speaker) => (
+                <SpeakerCard key={speaker.id} speaker={speaker} />
+              ))}
+            </div>
+          </section>
+        )}
         <div className="space-y-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0 xl:grid-cols-3">
           {posts.map((post, i) => {
             const isOpen = expanded === post.id;
