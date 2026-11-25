@@ -5,9 +5,8 @@ import { DialectEntry, SpeakerName, VoiceSample } from '../types';
  * Egyptian (Cairene) entries.
  *
  * Voices: Mario, and Karim, Omar and Ali (CS students in Cairo — Karim and Ali
- * at AUC). Each voice is listed only where its take says exactly the wording
- * shown; where most voices agreed on different wording from Mario's, that
- * wording is used and Mario's take is left out.
+ * at AUC). The shared wording is shown on the phrase card; a recording with
+ * a different wording displays its own words alongside the speaker.
  *
  * Wording was drafted from Whisper transcripts of the recordings themselves —
  * NOT yet checked by a native speaker. Speakers were identified by voice
@@ -36,7 +35,7 @@ const EG: Record<number, [arabic: string, transliteration: string, voices: Voice
   8: ['أنا بتكلم فصحى', 'ana batkallim fusha', ['karim', 'omar']],
   9: ['أنا بتعلم عربي', "ana bat'allim 'arabi", ['karim']],
   10: ['إنت بتدرس إيه؟', 'inta btidris eih?', ['mario']],
-  11: ['بتشتغل فين؟', 'btishtaghal fein?', ['karim', 'omar']],
+  11: ['بتشتغل فين؟', 'btishtaghal fein?', ['karim', 'omar', 'mario']],
   12: ['إنت بتحب ده؟', 'inta bitHibb da?', ['mario'], 'Do you like this?'],
   13: ['لا، أنا مش بحب ___', 'la, ana mish baHibb ___', ['mario']],
   14: ['عجبني جدًا', "'agabni giddan", ['mario'], 'I liked it a lot'],
@@ -124,7 +123,7 @@ const EG: Record<number, [arabic: string, transliteration: string, voices: Voice
   100: ['كمّل في وشّك', 'kammil fi wishshak', ['omar', 'karim']],
   101: ['ممكن تديني الباقي من فضلك', "mumkin tiddiini il-baa'i min fadlak", ['mario']],
   102: ['ممكن تشغل العداد لو سمحت؟', "mumkin tishaghghal il-'addaad law samaht?", ['omar', 'karim']],
-  103: ['ممكن ترجع؟', "mumkin tirga'?", ['karim']],
+  103: ['ممكن ترجع؟', "mumkin tirga'?", ['karim', 'mario']],
   104: ['تقدر تاخد كام واحد معاك؟', "ti'dar taakhud kaam waahid ma'aak?", ['mario', 'omar']],
   105: ['ممكن تستناني شوية', 'mumkin tistannaani shwayya', ['mario']],
   106: ['هو ده المكان', 'huwwa da il-makaan', ['mario', 'ali']],
@@ -175,6 +174,12 @@ const EG: Record<number, [arabic: string, transliteration: string, voices: Voice
   152: ['أنا عايز ميّة، عندك ميّة؟', "ana 'aayiz mayya, 'andak mayya?", ['mario']],
 };
 
+// These recorded versions add words to the shared phrase above.
+const MARIO_VARIANTS: Record<number, string> = {
+  11: 'إنت بتشتغل فين؟',
+  103: 'ممكن ترجع لو سمحت؟',
+};
+
 export function egyptianEntry(phraseNum: number): DialectEntry | undefined {
   const row = EG[phraseNum];
   if (!row) return undefined;
@@ -187,6 +192,7 @@ export function egyptianEntry(phraseNum: number): DialectEntry | undefined {
     phraseNum,
     trackNum: 0,
     audioUrl: clipUrl(`eg/${voice}/${n}.mp3`),
+    ...(voice === 'mario' && MARIO_VARIANTS[phraseNum] ? { spokenArabic: MARIO_VARIANTS[phraseNum] } : {}),
   }));
   return { dialectId: 'egyptian', name: 'Egyptian', english, arabicScript, transliteration, samples };
 }

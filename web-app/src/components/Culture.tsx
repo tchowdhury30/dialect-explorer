@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'motion/react';
-import { ChevronDown, Heart } from 'lucide-react';
+import { AlertCircle, ChevronDown, Heart, Pause, Play } from 'lucide-react';
 import { CategoryScene } from './art/CategoryArt';
 import { DialectId } from '../types';
 import { DIALECTS, DIALECT_IDS } from '../lib/dialects';
+import { Speaker, speakersFor } from '../lib/speakers';
+import { useAudio } from '../lib/audio';
+import { speakerBios } from '../data/speaker-bios';
 
 interface CulturePost {
   id: string;
@@ -113,6 +116,13 @@ export function Culture({ dialect }: { dialect: DialectId }) {
     () => (filter === 'all' ? culturePosts : culturePosts.filter((p) => p.dialect === filter)),
     [filter]
   );
+  const speakers = useMemo(
+    () => (filter === 'all'
+      ? [...speakersFor('egyptian'), ...speakersFor('levantine')]
+      : speakersFor(filter)
+    ).filter((speaker) => speaker.nameConfirmed),
+    [filter]
+  );
 
   const toggleLike = (id: string) =>
     setLiked((prev) => {
@@ -155,6 +165,15 @@ export function Culture({ dialect }: { dialect: DialectId }) {
       </header>
 
       <div className="scroll-clean flex-1 overflow-y-auto px-4 pb-8 pt-2 lg:mx-auto lg:w-full lg:max-w-7xl lg:px-10">
+        <section aria-labelledby="meet-speakers" className="mb-6">
+          <h3 id="meet-speakers" className="mb-1 font-display text-xl font-semibold text-ink">Meet the voices</h3>
+          <p className="mb-3 text-sm text-ink-muted">The people behind the recordings</p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {speakers.map((speaker) => (
+              <SpeakerCard key={speaker.id} speaker={speaker} />
+            ))}
+          </div>
+        </section>
         <div className="space-y-4 lg:grid lg:grid-cols-2 lg:items-start lg:gap-4 lg:space-y-0 xl:grid-cols-3">
           {posts.map((post, i) => {
             const isOpen = expanded === post.id;
@@ -227,5 +246,51 @@ export function Culture({ dialect }: { dialect: DialectId }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function SpeakerCard({ speaker }: { speaker: Speaker }) {
+  const bio = speakerBios[speaker.id];
+  const { activeId, status, failedIds, play } = useAudio();
+  const audioId = `speaker-intro:${speaker.id}`;
+  const isActive = activeId === audioId;
+  const isPlaying = isActive && status === 'playing';
+  const isLoading = isActive && status === 'loading';
+  const hasFailed = failedIds.has(audioId);
+  const audioLabel = bio?.audioLabel ?? 'introduction';
+
+  return (
+    <article className="flex min-h-28 gap-3 overflow-hidden rounded-card bg-card p-3 shadow-card">
+      {speaker.photo && (
+        <img src={speaker.photo} alt={speaker.name} loading="lazy" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
+      )}
+      <div className="min-w-0 flex-1">
+        <h4 className="font-display text-base font-semibold text-ink">Meet {speaker.name}</h4>
+        {bio?.transcriptVerified && bio.transcript && (
+          <p className="mt-1 text-sm leading-relaxed text-ink-muted">{bio.transcript}</p>
+        )}
+        {bio?.audioUrl && (
+          <button
+            type="button"
+            onClick={() => play(audioId, bio.audioUrl!)}
+            disabled={hasFailed}
+            aria-pressed={isActive}
+            aria-label={hasFailed
+              ? `${speaker.name}'s ${audioLabel} is unavailable`
+              : `${isActive ? 'Stop' : 'Play'} ${speaker.name}'s ${audioLabel}`}
+            className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand-ink hover:brightness-95 disabled:cursor-not-allowed disabled:bg-surface disabled:text-ink-soft"
+          >
+            {hasFailed ? (
+              <AlertCircle className="h-3.5 w-3.5" aria-hidden="true" />
+            ) : isPlaying ? (
+              <Pause className="h-3.5 w-3.5" aria-hidden="true" />
+            ) : (
+              <Play className="h-3.5 w-3.5" aria-hidden="true" />
+            )}
+            {hasFailed ? 'Audio unavailable' : isLoading ? 'Loading audio…' : isPlaying ? 'Stop audio' : `Listen to ${audioLabel.toLowerCase()}`}
+          </button>
+        )}
+      </div>
+    </article>
   );
 }

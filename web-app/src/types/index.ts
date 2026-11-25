@@ -22,6 +22,8 @@ export interface VoiceSample {
   phraseNum: number;
   trackNum: number;
   audioUrl: string;
+  /** Exact words when this recording uses a variant of the displayed phrase. */
+  spokenArabic?: string;
 }
 
 /**
