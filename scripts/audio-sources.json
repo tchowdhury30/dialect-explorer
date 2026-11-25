@@ -2163,5 +2163,85 @@
    "from": 299.56,
    "to": 302.7
   }
+ ],
+ "jo/khalid/143.mp3": [
+  {
+   "file": "MULTI/FOLDER05/ZOOM0013/ZOOM0013_TrLR.WAV",
+   "from": 62.9,
+   "to": 65.7,
+   "sha256": "76deb2f8cf3787f5e84f5f41d8ed81c4d0c2817267a6bf01bd0cf1fe54698932"
+  }
+ ],
+ "jo/ghaina/067.mp3": [
+  {
+   "file": "MULTI/FOLDER07/ZOOM0004/ZOOM0004_TrLR.WAV",
+   "from": 38.0,
+   "to": 40.2,
+   "sha256": "3f6010bd2de83829b621a07c16ed5effc5311d5a036ee052d015122c336e9950"
+  }
+ ],
+ "bios/salim.mp3": [
+  {
+   "file": "MULTI/FOLDER05/ZOOM0001/ZOOM0001_TrLR.WAV",
+   "from": 5.25,
+   "to": 16.4,
+   "sha256": "6a2f130b4c61cb3c79a18545b2e07588911e0c7f07c82fbc9426a8825649b741"
+  }
+ ],
+ "bios/khalid.mp3": [
+  {
+   "file": "MULTI/FOLDER05/ZOOM0018/ZOOM0018_TrLR.WAV",
+   "from": 2.6,
+   "to": 32.85,
+   "sha256": "207fc1477a1651e4dcf6f5342dec41357e143cb7c7d7e53951011c5187dc4791"
+  }
+ ],
+ "jo/habib/143.mp3": [
+  {
+   "file": "MULTI/FOLDER07/ZOOM0007/ZOOM0007_TrLR.WAV",
+   "from": 130.46,
+   "to": 132.1,
+   "sha256": "bae0b1afa34188265bdd6489db7d9ff3c3a581b4b77bf5c12091650b0cc99486"
+  }
+ ],
+ "eg/mario/011.mp3": [
+  {
+   "file": "MULTI/Mario + Test/Mario Local phrases /ZOOM0011_TrLR.WAV",
+   "from": 291.5,
+   "to": 293.55,
+   "sha256": "5ee9d28513b26441b6bcc7d2bacf4854e33200668c94e71b8818124969a48b76"
+  }
+ ],
+ "eg/mario/103.mp3": [
+  {
+   "file": "MULTI/Mario + Test/Mario List translations/ZOOM0012_TrLR.WAV",
+   "from": 255.65,
+   "to": 257.55,
+   "sha256": "53618eb012c9788181fda562be20287fb994ced8035434adcde1dcc44cd4957f"
+  }
+ ],
+ "jo/khalid/071.mp3": [
+  {
+   "file": "MULTI/FOLDER05/ZOOM0011/ZOOM0011_TrLR.WAV",
+   "from": 70.1,
+   "to": 73.08,
+   "sha256": "6a232746c6c4c3f7c0dd735b7c98f41c4daa66742cbbca9b35a904c58dea3d95"
+  }
+ ],
+ "jo/habib/144.mp3": [
+  {
+   "file": "MULTI/FOLDER07/ZOOM0007/ZOOM0007_TrLR.WAV",
+   "from": 155.4,
+   "to": 157.95,
+   "sha256": "bae0b1afa34188265bdd6489db7d9ff3c3a581b4b77bf5c12091650b0cc99486"
+  }
+ ],
+ "jo/habib/145.mp3": [
+  {
+   "file": "MULTI/FOLDER07/ZOOM0007/ZOOM0007_TrLR.WAV",
+   "from": 170.2,
+   "to": 173.08,
+   "sha256": "bae0b1afa34188265bdd6489db7d9ff3c3a581b4b77bf5c12091650b0cc99486"
+  }
  ]
 }

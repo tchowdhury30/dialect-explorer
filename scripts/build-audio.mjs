@@ -8,7 +8,7 @@
  * Reads scripts/audio-sources.json — { "<output path>": [source, ...] } — and
  * writes web-app/public/audio/<output path>. A source is a raw file path
  * relative to Audios/, or { "file": ..., "from": s, "to": s } to cut a span out
- * of a long uncut session recording.
+ * of a long uncut session recording. An optional sha256 pins the raw version.
  *
  * For each clip:
  *   - several sources (counting, days) are joined in order
@@ -56,10 +56,17 @@ const sources = JSON.parse(readFileSync(join(ROOT, 'scripts', 'audio-sources.jso
 
 const srcFile = (src) => (typeof src === 'object' ? src.file : src);
 
+// Windows extraction removes trailing spaces from archive path components.
+function rawPath(file) {
+  const original = join(RAW, file);
+  if (existsSync(original)) return original;
+  return join(RAW, ...file.split(/[\\/]/).map((part) => part.replace(/[ .]+$/, '')));
+}
+
 /** ffmpeg input args for one source (seeks into long session recordings). */
 function inputArgs(src) {
   const seek = typeof src === 'object' ? ['-ss', String(src.from), '-to', String(src.to)] : [];
-  return [...seek, '-i', join(RAW, srcFile(src))];
+  return [...seek, '-i', rawPath(srcFile(src))];
 }
 
 function ffmpeg(args) {
@@ -117,6 +124,16 @@ function speechSpan(src) {
   return { from: Math.max(0, from - 0.12), to: Math.min(dur, to + 0.25) };
 }
 
+// Some archives contain different recordings under the same filename. Verify
+// pinned raw files before cutting a clip, and hash each file only once per run.
+const sourceDigests = new Map();
+function sourceDigest(file) {
+  if (!sourceDigests.has(file)) {
+    sourceDigests.set(file, createHash('sha256').update(readFileSync(rawPath(file))).digest('hex'));
+  }
+  return sourceDigests.get(file);
+}
+
 let built = 0;
 let skipped = 0;
 const failed = [];
@@ -129,9 +146,17 @@ for (const [out, inputs] of Object.entries(sources)) {
     continue;
   }
 
-  const missing = inputs.map(srcFile).filter((f) => !existsSync(join(RAW, f)));
+  const missing = inputs.map(srcFile).filter((f) => !existsSync(rawPath(f)));
   if (missing.length) {
     failed.push(`${out}: missing ${missing.join(', ')}`);
+    continue;
+  }
+
+  const mismatched = inputs.filter((src) =>
+    typeof src === 'object' && src.sha256 && sourceDigest(src.file) !== src.sha256
+  );
+  if (mismatched.length) {
+    failed.push(`${out}: source checksum mismatch: ${mismatched.map(srcFile).join(', ')}`);
     continue;
   }
 

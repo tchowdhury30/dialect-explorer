@@ -166,7 +166,7 @@ function PhraseOfTheDay({
           Phrase of the day
         </span>
         <span lang="ar" dir="rtl" className="block truncate text-right text-2xl font-bold leading-[1.6] text-ink">
-          {view.arabic}
+          {sample.spokenArabic ?? view.arabic}
         </span>
         <span className="block truncate text-[0.8125rem] text-ink-muted">{view.english}</span>
       </button>

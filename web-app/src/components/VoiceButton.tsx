@@ -28,7 +28,7 @@ export function VoiceButton({ sample, phraseId }: { sample: VoiceSample; phraseI
       type="button"
       onClick={() => play(id, sample.audioUrl)}
       disabled={hasFailed}
-      aria-label={label}
+      aria-label={sample.spokenArabic ? `${label}: ${sample.spokenArabic}` : label}
       aria-pressed={isPlaying}
       className={`relative z-10 inline-flex items-center gap-2 rounded-full py-1 pl-1 pr-3.5 font-display text-sm font-semibold transition-[background,transform,color] duration-200 active:scale-95 ${
         hasFailed
@@ -40,6 +40,9 @@ export function VoiceButton({ sample, phraseId }: { sample: VoiceSample; phraseI
     >
       <SpeakerAvatar name={sample.speaker} photo={photoFor(sample.speaker)} size={30} />
       {sample.speaker}
+      {sample.spokenArabic && (
+        <span lang="ar" dir="rtl" className="text-sm font-normal">{sample.spokenArabic}</span>
+      )}
       {isPlaying || isLoading ? (
         <span aria-hidden="true" className={`inline-flex h-3.5 items-end gap-[2px] ${isLoading ? 'opacity-50' : ''}`}>
           <i className="eq-bar-lg" />
